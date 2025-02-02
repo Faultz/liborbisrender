@@ -108,7 +108,7 @@ void        ImGui_ImplGnm_RenderDrawData(ImDrawData* draw_data, sce::Gnmx::Light
 		}
 		CombinedVertexBuffer pVB;
 		pVB.m_size = (draw_data->TotalVtxCount + 5000) * sizeof(ImDrawVert);
-		pVB.m_vb = (ImDrawVert*)m_garlic.Allocate(pVB.m_size, 4, liborbisutil::string::format("Vertex Buffers %i", target));
+		pVB.m_vb = (ImDrawVert*)m_garlic.allocate(pVB.m_size, 4, liborbisutil::string::format("Vertex Buffers %i", target));
 
 		printf("vertex buffer allocated %i\n", pVB.m_size);
 		vertex_buffer = pVB;
@@ -121,7 +121,7 @@ void        ImGui_ImplGnm_RenderDrawData(ImDrawData* draw_data, sce::Gnmx::Light
 		}
 		CombinedIndexBuffer pIB;
 		pIB.m_size = (draw_data->TotalIdxCount + 10000) * sizeof(ImDrawIdx);
-		pIB.m_ib = (ImDrawIdx*)m_garlic.Allocate(pIB.m_size, 4, liborbisutil::string::format("Index Buffers %i", target));
+		pIB.m_ib = (ImDrawIdx*)m_garlic.allocate(pIB.m_size, 4, liborbisutil::string::format("Index Buffers %i", target));
 
 		printf("index buffer allocated %i\n", pIB.m_size);
 		index_buffer = pIB;
@@ -235,7 +235,7 @@ bool		ImGui_ImplGnm_CreateFontsTexture(std::function<void(ImGuiIO& io)> loadFont
 	if (status != 0) 
 		return -1;
 
-	void* buffer = m_garlic.Allocate(g_fontTexture.getSizeAlign(), "Texture Allocate");
+	void* buffer = m_garlic.allocate(g_fontTexture.getSizeAlign(), "Texture Allocate");
 	if (buffer == nullptr)
 		return 0;
 

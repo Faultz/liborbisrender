@@ -19,7 +19,7 @@ namespace renderer
 
 	void* allocMem(size_t size, void* userData)
 	{
-		return render_context::onion_memory_allocator->Allocate(size, 8, "");
+		return render_context::onion_memory_allocator->allocate(size, 8, "");
 	}
 
 	void freeMem(void* ptr, void* userData)

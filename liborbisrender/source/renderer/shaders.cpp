@@ -10,8 +10,8 @@ PsShader::PsShader(void* shaderBinary, liborbisutil::memory::direct_memory_alloa
 	sce::Gnmx::ShaderInfo shaderInfo;
 	sce::Gnmx::parseShader(&shaderInfo, shaderBinary);
 
-	void* binary = allocator->Allocate(shaderInfo.m_gpuShaderCodeSize, sce::Gnm::kAlignmentOfShaderInBytes, "Pixel Binary Shader");
-	void* header = allocator->Allocate(shaderInfo.m_psShader->computeSize(), sce::Gnm::kAlignmentOfBufferInBytes, "Pixel Header Shader");
+	void* binary = allocator->allocate(shaderInfo.m_gpuShaderCodeSize, sce::Gnm::kAlignmentOfShaderInBytes, "Pixel Binary Shader");
+	void* header = allocator->allocate(shaderInfo.m_psShader->computeSize(), sce::Gnm::kAlignmentOfBufferInBytes, "Pixel Header Shader");
 
 	memcpy(binary, shaderInfo.m_gpuShaderCode, shaderInfo.m_gpuShaderCodeSize);
 	memcpy(header, shaderInfo.m_psShader, shaderInfo.m_psShader->computeSize());
@@ -36,8 +36,8 @@ VsShader::VsShader(void* shaderBinary, liborbisutil::memory::direct_memory_alloa
 	sce::Gnmx::ShaderInfo shaderInfo;
 	sce::Gnmx::parseShader(&shaderInfo, shaderBinary);
 
-	void* binary = allocator->Allocate(shaderInfo.m_gpuShaderCodeSize, sce::Gnm::kAlignmentOfShaderInBytes, "Vertex Binary Shader");
-	void* header = allocator->Allocate(shaderInfo.m_psShader->computeSize(), sce::Gnm::kAlignmentOfBufferInBytes, "Vertex Header Shader");
+	void* binary = allocator->allocate(shaderInfo.m_gpuShaderCodeSize, sce::Gnm::kAlignmentOfShaderInBytes, "Vertex Binary Shader");
+	void* header = allocator->allocate(shaderInfo.m_psShader->computeSize(), sce::Gnm::kAlignmentOfBufferInBytes, "Vertex Header Shader");
 
 	memcpy(binary, shaderInfo.m_gpuShaderCode, shaderInfo.m_gpuShaderCodeSize);
 	memcpy(header, shaderInfo.m_psShader, shaderInfo.m_psShader->computeSize());
@@ -56,7 +56,7 @@ VsShader::VsShader(void* shaderBinary, liborbisutil::memory::direct_memory_alloa
 	fb.m_numElementsInRemapTable = 0;
 	fb.m_semanticsRemapTable = 0;
 
-	m_fetchShader = (uint32_t*)allocator->Allocate(fb.m_fetchShaderBufferSize, sce::Gnm::kAlignmentOfFetchShaderInBytes, "Vertex Fetch Shader");
+	m_fetchShader = (uint32_t*)allocator->allocate(fb.m_fetchShaderBufferSize, sce::Gnm::kAlignmentOfFetchShaderInBytes, "Vertex Fetch Shader");
 	sce::Gnm::generateFetchShader(m_fetchShader, &fb);
 
 	sce::Gnmx::generateInputResourceOffsetTable(&resourceTable, sce::Gnm::kShaderStageVs, m_shader);
@@ -76,8 +76,8 @@ CsShader::CsShader(void* shaderBinary, liborbisutil::memory::direct_memory_alloa
 	sce::Gnmx::ShaderInfo shaderInfo;
 	sce::Gnmx::parseShader(&shaderInfo, shaderBinary);
 
-	void* binary = allocator->Allocate(shaderInfo.m_gpuShaderCodeSize, sce::Gnm::kAlignmentOfShaderInBytes, "Compute Binary Shader");
-	void* header = allocator->Allocate(shaderInfo.m_csShader->computeSize(), sce::Gnm::kAlignmentOfBufferInBytes, "Compute Header Shader");
+	void* binary = allocator->allocate(shaderInfo.m_gpuShaderCodeSize, sce::Gnm::kAlignmentOfShaderInBytes, "Compute Binary Shader");
+	void* header = allocator->allocate(shaderInfo.m_csShader->computeSize(), sce::Gnm::kAlignmentOfBufferInBytes, "Compute Header Shader");
 
 	memcpy(binary, shaderInfo.m_gpuShaderCode, shaderInfo.m_gpuShaderCodeSize);
 	memcpy(header, shaderInfo.m_csShader, shaderInfo.m_csShader->computeSize());
