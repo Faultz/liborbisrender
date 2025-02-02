@@ -1,0 +1,35 @@
+﻿
+struct PS_INPUT
+{
+    float4 m_pos : S_POSITION;
+    float4 m_col : COLOR0;
+    float2 m_uv  : TEXCOORD0;
+};
+
+#include "imgui_srt_common.h"
+
+float srgb_to_linear(float x) {
+    return (x <= 0.04045) ? (x / 12.92) : pow((x + 0.055) / 1.055, 2.4);
+}
+
+float4 srgb_to_linear(float4 color) {
+    return float4(srgb_to_linear(color.r), srgb_to_linear(color.g), srgb_to_linear(color.b), color.a);
+}
+
+Frame::ImguiSrtData userData : S_SRT_DATA;
+
+PS_INPUT main(uint id : S_VERTEX_ID)
+{
+	Frame::ImDrawVert input = userData.m_frameData->m_vertex[id + userData.m_drawData->m_vtxOffset];
+
+    PS_INPUT output;
+    output.m_pos = mul(userData.m_frameData->m_mvp, float4(input.m_pos.xy, 0.0f, 1.f));
+    
+    if(userData.m_frameData->srgb)
+        output.m_col = srgb_to_linear(float4((input.m_col & 0xff) / 255.0, ((input.m_col >> 8) & 0xff) / 255.0, ((input.m_col >> 16) & 0xff) / 255.0, ((input.m_col >> 24) & 0xff) / 255.0));
+    else
+        output.m_col = float4((input.m_col & 0xff) / 255.0, ((input.m_col >> 8) & 0xff) / 255.0, ((input.m_col >> 16) & 0xff) / 255.0, ((input.m_col >> 24) & 0xff) / 255.0);
+   
+    output.m_uv  = input.m_uv;
+    return output;
+}

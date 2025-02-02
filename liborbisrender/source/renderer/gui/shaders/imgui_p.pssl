@@ -1,0 +1,31 @@
+﻿
+struct PS_INPUT
+{
+    float4 m_pos : S_POSITION;
+    float4 m_col : COLOR0;
+    float2 m_uv  : TEXCOORD0;
+};
+
+#include "imgui_srt_common.h"
+
+Texture2D tex : register(t0);
+
+float4 main(PS_INPUT input) : S_TARGET_OUTPUT
+{
+	sce::Gnm::Sampler gnmSampler;
+	gnmSampler.init();
+	gnmSampler.setWrapMode(
+		sce::Gnm::kWrapModeWrap,
+		sce::Gnm::kWrapModeWrap,
+		sce::Gnm::kWrapModeWrap);
+	gnmSampler.setXyFilterMode(
+		sce::Gnm::kFilterModeAnisoBilinear,
+		sce::Gnm::kFilterModeAnisoBilinear);
+	gnmSampler.setMipFilterMode(sce::Gnm::kMipFilterModeLinear);
+	gnmSampler.setZFilterMode(sce::Gnm::kZFilterModeLinear);
+	gnmSampler.setAnisotropyRatio(sce::Gnm::kAnisotropyRatio16);
+	gnmSampler.setAnisotropyThreshold(0);
+
+	float4 out_col = input.m_col * tex.Sample(gnmSampler, input.m_uv);
+    return out_col;
+}
