@@ -1,5 +1,5 @@
 // stdafx.cpp : source file that includes just the standard includes
-// liborbisrender.pch will be the pre-compiled header
+// sample.pch will be the pre-compiled header
 
 #include "stdafx.h"
 

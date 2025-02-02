@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{7269bd12-dd7e-4d50-b2c8-65dd8ade9e65}</ProjectGuid>
+    <ProjectGuid>{3159e53c-8828-49a6-b509-b64ded75515a}</ProjectGuid>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ORBIS'" Label="Configuration">
@@ -51,10 +51,18 @@
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions);</PreprocessorDefinitions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <AdditionalIncludeDirectories>..\dependencies\StubMaker\include;..\dependencies\minhook\libMinhook;..\dependencies\fmtlib\fmtlib;..\dependencies\liborbisutil\liborbisutil\include;..\liborbisrender\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CppLanguageStd>Cpp17</CppLanguageStd>
+      <CppExceptions>true</CppExceptions>
     </ClCompile>
     <Link>
       <Addressing>NonAslr</Addressing>
+      <AdditionalDependencies>-lSceLibcInternal_gen_stub_weak;-lkernel_gen_stub_weak;-lSceRtc_gen_stub_weak;-lSceSystemStateMgr_gen_stub_weak;-lSceSystemService_gen_stub_weak;-lSceSysCore_gen_stub_weak;-lSceUserService_gen_stub_weak;-lSceNet_gen_stub_weak;-lSceLncUtil_gen_stub_weak;-lScePad_stub_weak;-lSceRtc_stub_weak;-lSceVideoOut_stub_weak;-lSceDbg_stub_weak;-lSceNpWebApi_stub_weak;-lSceNpAuth_stub_weak;-lSceNpManager_stub_weak;-lSceImeDialog_stub_weak;-lSceAudioOut_stub_weak;-lSceAudioIn_stub_weak;-lSceVoice_stub_weak;-lSceSysmodule_stub_weak;-lSceHttp_stub_weak;-lSceSsl_stub_weak;-lSceNet_stub_weak;-lSceGameLiveStreaming_stub_weak;-lSceGnm_debug;-lSceGnmx_debug;-lSceGnmDriver_stub_weak;-lSceGnf_debug;-lSceGpuAddress;-lSceDbgVideoOut_stub_weak;-lScePm4Dump;-lScePngDec_stub_weak;-lSceJpegDec_stub_weak;fmtlib.a;-lMinhook;-lorbisutil;-lorbisrender;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutputPath);..\dependencies\StubMaker;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>"$(SolutionDir)dependencies\make_fself.exe"  "$(OutputPath)$(TargetName).prx"  "$(OutputPath)$(TargetName).sprx"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ORBIS'">
     <ClCompile>
