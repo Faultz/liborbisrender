@@ -18,7 +18,7 @@ namespace framework
 
 		bool load_from_array(const char* shader_code)
 		{
-			return false;
+			return shader->load_from_array(shader_code);
 		}
 		void bind(sce::Gnmx::LightweightGfxContext* context);
 

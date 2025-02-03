@@ -89,8 +89,8 @@ namespace renderer
 		frame_context* curr_frame_context;
 		sce::Gnmx::LightweightGfxContext* current_lw_context;
 
-		inline static liborbisutil::memory::direct_memory_alloactor* garlic_memory_allocator;
-		inline static liborbisutil::memory::direct_memory_alloactor* onion_memory_allocator;
+		inline static liborbisutil::memory::direct_memory_allocator* garlic_memory_allocator;
+		inline static liborbisutil::memory::direct_memory_allocator* onion_memory_allocator;
 		inline static SceVideoOutBuffers* video_out_info;
 
 		bool target_is_srgb;

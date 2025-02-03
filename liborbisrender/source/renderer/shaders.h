@@ -20,13 +20,13 @@ struct base_shader
 
 struct PsShader : base_shader<sce::Gnmx::PsShader>
 {
-	PsShader(void* shaderBinary, liborbisutil::memory::direct_memory_alloactor* allocator);
+	PsShader(void* shaderBinary, liborbisutil::memory::direct_memory_allocator* allocator);
 	PsShader(sce::Gnmx::PsShader* shader);
 };
 
 struct VsShader : base_shader<sce::Gnmx::VsShader>
 {
-	VsShader(void* shaderBinary, liborbisutil::memory::direct_memory_alloactor* allocator);
+	VsShader(void* shaderBinary, liborbisutil::memory::direct_memory_allocator* allocator);
 	VsShader(sce::Gnmx::VsShader* shader);
 
 	uint32_t* m_fetchShader;
@@ -35,7 +35,7 @@ struct VsShader : base_shader<sce::Gnmx::VsShader>
 
 struct CsShader : base_shader<sce::Gnmx::CsShader>
 {
-	CsShader(void* shaderBinary, liborbisutil::memory::direct_memory_alloactor* allocator);
+	CsShader(void* shaderBinary, liborbisutil::memory::direct_memory_allocator* allocator);
 	CsShader(sce::Gnmx::CsShader* shader);
 };
 

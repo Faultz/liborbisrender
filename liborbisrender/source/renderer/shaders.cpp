@@ -5,7 +5,7 @@
 #include <gnm.h>
 #include <gnmx/shader_parser.h>
 
-PsShader::PsShader(void* shaderBinary, liborbisutil::memory::direct_memory_alloactor* allocator)
+PsShader::PsShader(void* shaderBinary, liborbisutil::memory::direct_memory_allocator* allocator)
 {
 	sce::Gnmx::ShaderInfo shaderInfo;
 	sce::Gnmx::parseShader(&shaderInfo, shaderBinary);
@@ -31,7 +31,7 @@ PsShader::PsShader(sce::Gnmx::PsShader* shader)
 	sce::Gnmx::generateInputResourceOffsetTable(&resourceTable, sce::Gnm::kShaderStagePs, m_shader);
 }
 
-VsShader::VsShader(void* shaderBinary, liborbisutil::memory::direct_memory_alloactor* allocator)
+VsShader::VsShader(void* shaderBinary, liborbisutil::memory::direct_memory_allocator* allocator)
 {
 	sce::Gnmx::ShaderInfo shaderInfo;
 	sce::Gnmx::parseShader(&shaderInfo, shaderBinary);
@@ -71,7 +71,7 @@ VsShader::VsShader(sce::Gnmx::VsShader* shader)
 	sce::Gnmx::generateInputResourceOffsetTable(&resourceTable, sce::Gnm::kShaderStageVs, m_shader);
 }
 
-CsShader::CsShader(void* shaderBinary, liborbisutil::memory::direct_memory_alloactor* allocator)
+CsShader::CsShader(void* shaderBinary, liborbisutil::memory::direct_memory_allocator* allocator)
 {
 	sce::Gnmx::ShaderInfo shaderInfo;
 	sce::Gnmx::parseShader(&shaderInfo, shaderBinary);

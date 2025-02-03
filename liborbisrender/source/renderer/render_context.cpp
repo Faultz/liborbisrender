@@ -333,7 +333,7 @@ namespace renderer
 
 	bool render_context::create_garlic_allocator(size_t size)
 	{
-		garlic_memory_allocator = new liborbisutil::memory::direct_memory_alloactor(size, SCE_KERNEL_WC_GARLIC);
+		garlic_memory_allocator = new liborbisutil::memory::direct_memory_allocator(size, SCE_KERNEL_WC_GARLIC);
 		if (!garlic_memory_allocator->Initialised)
 		{
 			return false;
@@ -344,7 +344,7 @@ namespace renderer
 
 	bool render_context::create_onion_allocator(size_t size)
 	{
-		onion_memory_allocator = new liborbisutil::memory::direct_memory_alloactor(size, SCE_KERNEL_WB_ONION);
+		onion_memory_allocator = new liborbisutil::memory::direct_memory_allocator(size, SCE_KERNEL_WB_ONION);
 		if (!onion_memory_allocator->Initialised)
 		{
 			return false;
