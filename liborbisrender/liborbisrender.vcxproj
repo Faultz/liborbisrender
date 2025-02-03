@@ -67,6 +67,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\renderer\framework\framework.cpp" />
     <ClCompile Include="source\renderer\gui\backend\imgui_impl_gnm.cpp" />
     <ClCompile Include="source\renderer\gui\backend\imgui_impl_orbis.cpp" />
     <ClCompile Include="source\renderer\gui\imgui.cpp" />
@@ -80,6 +81,7 @@
     <ClCompile Include="source\renderer\shaders.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="source\renderer\framework\framework.h" />
     <ClInclude Include="source\renderer\gui\backend\imgui_impl_gnm.h" />
     <ClInclude Include="source\renderer\gui\backend\imgui_impl_orbis.h" />
     <ClInclude Include="source\renderer\gui\imconfig.h" />

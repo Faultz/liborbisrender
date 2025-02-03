@@ -176,6 +176,9 @@ namespace renderer
 			return;
 		}
 
+		if (flags & StateDestroying)
+			return;
+
 		flags |= StateDestroying;
 
 		release_hooks();

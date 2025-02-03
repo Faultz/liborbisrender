@@ -81,13 +81,6 @@ namespace renderer
 		bool is_target_srgb() const;
 		bool is_initialized() const;
 
-		// per frame context
-		uint32_t prev_frame_index;
-		uint32_t curr_frame_index;
-		uint32_t next_frame_index;
-
-		frame_context* prev_frame_context;
-		frame_context* curr_frame_context;
 		sce::Gnmx::LightweightGfxContext* current_lw_context;
 
 		inline static liborbisutil::memory::direct_memory_alloactor* garlic_memory_allocator;
@@ -112,6 +105,14 @@ namespace renderer
 		void release_render_targets();
 		void release_event_queue();
 		void release_contexts();
+
+		// per frame context
+		uint32_t prev_frame_index;
+		uint32_t curr_frame_index;
+		uint32_t next_frame_index;
+
+		frame_context* prev_frame_context;
+		frame_context* curr_frame_context;
 
 		// per instance context
 		sce::Gnmx::LightweightGfxContext* context;

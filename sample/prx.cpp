@@ -21,11 +21,24 @@ extern "C"
 				if (context.begin_scene(flipIndex))
 				{
 					context.update_scene();
+
+					// do render...
+
 					context.flip_scene(flipIndex);
 					context.end_scene();
 				}
 
 				});
+
+			liborbisutil::pad::initialize(liborbisutil::pad::state::read_state, true, [](ScePadData* pad, int num) {
+
+				if (pad->buttons & SCE_PAD_BUTTON_TRIANGLE)
+				{
+					context.release();
+				}
+
+				});
+
 			}, "init");
 
 		t.join();
@@ -37,6 +50,8 @@ extern "C"
 	{
 		liborbisutil::thread t([]() {
 			context.release();
+
+			liborbisutil::pad::finalize();
 
 			MH_Uninitialize();
 			}, "release");
