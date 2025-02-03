@@ -1,5 +1,6 @@
 
 #include "imgui_impl_gnm.h"
+#include "../../render_context.h"
 
 bool        ImGui_ImplGnm_Init(std::function<void(ImGuiIO& io)> loadFontsCb)
 {

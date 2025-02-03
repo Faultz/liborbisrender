@@ -1,6 +1,5 @@
 #include "stdafx.h"
-
-#include "liborbisrender.h"
+#include <liborbisrender.h>
 
 // We need to provide an export to force the expected stub library to be generated
 __declspec (dllexport) void dummy()
@@ -32,9 +31,11 @@ extern "C"
 
 			liborbisutil::pad::initialize(liborbisutil::pad::state::read_state, true, [](ScePadData* pad, int num) {
 
-				if (pad->buttons & SCE_PAD_BUTTON_TRIANGLE)
+				if (num == 1)
 				{
-					context.release();
+					ImGui_ImplOrbis_Data* bd = ImGui_ImplOrbis_GetBackendData();
+					if (bd)
+						memcpy(&bd->m_sce_pad, pad, sizeof(ScePadData));
 				}
 
 				});

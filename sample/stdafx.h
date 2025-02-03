@@ -39,4 +39,5 @@
 #include <kernel.h>
 #include <KernelExt.h>
 
-#include "minhook.h"
+#include <minhook.h>
+#include <liborbisutil.h>

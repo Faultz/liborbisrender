@@ -9,7 +9,8 @@
 
 #include <liborbisutil.h>
 
-#include "../source/renderer/gui/imgui.h"
+#include "../source/renderer/gui/backend/imgui_impl_orbis.h"
+#include "../source/renderer/gui/backend/imgui_impl_gnm.h"
 
 namespace renderer
 {

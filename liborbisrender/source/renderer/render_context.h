@@ -8,8 +8,6 @@
 #include <gnmx.h>
 
 #include <liborbisutil.h>
-
-#include "gui/imgui.h"
 #include "gui/backend/imgui_impl_orbis.h"
 #include "gui/backend/imgui_impl_gnm.h"
 

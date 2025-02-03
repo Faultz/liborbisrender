@@ -9,7 +9,6 @@
 
 #include "../Shaders/imgui_srt_common.h"
 #include "../../shaders.h"
-#include "../../render_context.h"
 
 namespace renderer
 {

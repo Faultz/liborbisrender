@@ -1,5 +1,6 @@
 
 #include "imgui_impl_orbis.h"
+#include "../../render_context.h"
 
 renderer::SceVideoOutBuffers* video;
 
@@ -154,7 +155,7 @@ static void ImGui_ImplOrbis_UpdateGamepads()
 
     //    sceSysmoduleLoadModule(SCE_SYSMODULE_IME_DIALOG);
 
-    //    liborbis::utils::keyboard::open("Test", [&](std::string data) {
+    //    liborbisutil::keyboard::open("Test", [&](std::string data) {
     //        std::wstring str(data.begin(), data.end());
 
     //        printf("data : %s\n", data.data());
@@ -164,8 +165,8 @@ static void ImGui_ImplOrbis_UpdateGamepads()
 
     //}
 
-    //float leftStickX = liborbis::pad::get_left_stick_x(), leftStickY = liborbis::pad::get_left_stick_y();
-    //float rightStickX = liborbis::pad::get_right_stick_x(), rightStickY = liborbis::pad::get_right_stick_y();
+    float leftStickX = liborbisutil::pad::get_left_stick_x(), leftStickY = liborbisutil::pad::get_left_stick_y();
+    float rightStickX = liborbisutil::pad::get_right_stick_x(), rightStickY = liborbisutil::pad::get_right_stick_y();
 
     io.AddKeyEvent(ImGuiKey_GamepadStart, data.buttons & SCE_PAD_BUTTON_START);
     io.AddKeyEvent(ImGuiKey_GamepadBack, data.buttons & SCE_PAD_BUTTON_TOUCH_PAD);
@@ -185,17 +186,17 @@ static void ImGui_ImplOrbis_UpdateGamepads()
     io.AddKeyEvent(ImGuiKey_GamepadR3, data.buttons & SCE_PAD_BUTTON_R3);
     io.AddKeyEvent(ImGuiKey_GamepadR3, data.buttons & SCE_PAD_BUTTON_R3);
 
-    //io.AddKeyAnalogEvent(ImGuiKey_GamepadL2, data.buttons & SCE_PAD_BUTTON_L2, pad::l2_pressure);
-    //io.AddKeyAnalogEvent(ImGuiKey_GamepadR2, data.buttons & SCE_PAD_BUTTON_R2, pad::r2_pressure);
-    //io.AddKeyAnalogEvent(ImGuiKey_GamepadLStickLeft, leftStickX != 0.0f, -leftStickX);
-    //io.AddKeyAnalogEvent(ImGuiKey_GamepadLStickRight, leftStickX != 0.0f, leftStickX);
-    //io.AddKeyAnalogEvent(ImGuiKey_GamepadLStickUp, leftStickY != 0.0f, -leftStickY);
-    //io.AddKeyAnalogEvent(ImGuiKey_GamepadLStickDown, leftStickY != 0.0f, leftStickY);
+    io.AddKeyAnalogEvent(ImGuiKey_GamepadL2, data.buttons & SCE_PAD_BUTTON_L2, liborbisutil::pad::l2_pressure);
+    io.AddKeyAnalogEvent(ImGuiKey_GamepadR2, data.buttons & SCE_PAD_BUTTON_R2, liborbisutil::pad::r2_pressure);
+    io.AddKeyAnalogEvent(ImGuiKey_GamepadLStickLeft, leftStickX != 0.0f, -leftStickX);
+    io.AddKeyAnalogEvent(ImGuiKey_GamepadLStickRight, leftStickX != 0.0f, leftStickX);
+    io.AddKeyAnalogEvent(ImGuiKey_GamepadLStickUp, leftStickY != 0.0f, -leftStickY);
+    io.AddKeyAnalogEvent(ImGuiKey_GamepadLStickDown, leftStickY != 0.0f, leftStickY);
 
-    //io.AddKeyAnalogEvent(ImGuiKey_GamepadRStickLeft, rightStickX != 0.0f, -rightStickX);
-    //io.AddKeyAnalogEvent(ImGuiKey_GamepadRStickRight, rightStickX != 0.0f, rightStickX);
-    //io.AddKeyAnalogEvent(ImGuiKey_GamepadRStickUp, rightStickY != 0.0f, -rightStickY);
-    //io.AddKeyAnalogEvent(ImGuiKey_GamepadRStickDown, rightStickY != 0.0f, rightStickY);
+    io.AddKeyAnalogEvent(ImGuiKey_GamepadRStickLeft, rightStickX != 0.0f, -rightStickX);
+    io.AddKeyAnalogEvent(ImGuiKey_GamepadRStickRight, rightStickX != 0.0f, rightStickX);
+    io.AddKeyAnalogEvent(ImGuiKey_GamepadRStickUp, rightStickY != 0.0f, -rightStickY);
+    io.AddKeyAnalogEvent(ImGuiKey_GamepadRStickDown, rightStickY != 0.0f, rightStickY);
 }
 
 void ImGui_ImplOrbis_NewFrame()
