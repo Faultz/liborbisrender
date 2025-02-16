@@ -33,11 +33,11 @@ extern "C"
 					ImGui::Begin("Hello, world!");
 					ImGui::Text("This is some useful text.");
 
-					//static texture tex("https://cataas.com/cat");
-					//if (tex)
-					//{
-					//	ImGui::Image(&tex, ImVec2(512, 512));
-					//}
+					static texture tex("https://cataas.com/cat");
+					if (tex)
+					{
+						ImGui::Image(&tex, { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y });
+					}
 
 					ImGui::End();
 
