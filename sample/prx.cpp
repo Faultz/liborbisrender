@@ -1,27 +1,45 @@
 #include "stdafx.h"
 #include <liborbisrender.h>
+#include <png_dec.h>
 
 // We need to provide an export to force the expected stub library to be generated
 __declspec (dllexport) void dummy()
 {
 }
 
-renderer::render_context context;
+render_context context;
 
 extern "C"
 {
 	int __cdecl module_start(size_t argc, const void* args)
 	{
 		liborbisutil::thread t([]() {
-			MH_Initialize();
+			auto res = MH_Initialize();
+			if (res != MH_OK)
+			{
+				LOG_ERROR("failed to initialize minhook: %d\n", res);
+				return;
+			}
 
-			context.create(renderer::RenderAfterFlip | renderer::HookFlip | renderer::FunctionImGui | renderer::FunctionRenderDebug, [](int flipIndex) {
+			liborbisutil::http::initialize();
 
-				if (context.begin_scene(flipIndex))
+			context.create(RenderAfterFlip | HookFlip | FunctionImGui | FunctionRenderDebug | UnlockFps, [](int flipIndex) {
+
+				if(context.begin_scene(flipIndex))
 				{
 					context.update_scene();
 
 					// do render...
+					ImGui::Begin("Hello, world!");
+					ImGui::Text("This is some useful text.");
+
+					//static texture tex("https://cataas.com/cat");
+					//if (tex)
+					//{
+					//	ImGui::Image(&tex, ImVec2(512, 512));
+					//}
+
+					ImGui::End();
 
 					context.flip_scene(flipIndex);
 					context.end_scene();
@@ -53,6 +71,7 @@ extern "C"
 			context.release();
 
 			liborbisutil::pad::finalize();
+			liborbisutil::http::finalize();
 
 			MH_Uninitialize();
 			}, "release");
