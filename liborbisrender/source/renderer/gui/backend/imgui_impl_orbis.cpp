@@ -2,7 +2,7 @@
 #include "imgui_impl_orbis.h"
 #include "../../render_context.h"
 
-renderer::SceVideoOutBuffers* video;
+SceVideoOutBuffers* video;
 
 // Backend data stored in io.BackendPlatformUserData to allow support for multiple Dear ImGui contexts
 // It is STRONGLY preferred that you use docking branch with multi-viewports (== single Dear ImGui context + multiple windows) instead of multiple Dear ImGui contexts.
@@ -13,7 +13,7 @@ ImGui_ImplOrbis_Data* ImGui_ImplOrbis_GetBackendData()
     return ImGui::GetCurrentContext() ? (ImGui_ImplOrbis_Data*)ImGui::GetIO().BackendPlatformUserData : NULL;
 }
 
-bool ImGui_ImplOrbis_Init(renderer::render_context* context)
+bool ImGui_ImplOrbis_Init(render_context* context)
 {
     ImGuiIO& io = ImGui::GetIO();
     IM_ASSERT(io.BackendPlatformUserData == NULL && "Already initialized a platform backend!");

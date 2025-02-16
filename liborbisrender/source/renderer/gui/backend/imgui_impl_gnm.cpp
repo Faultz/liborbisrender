@@ -231,7 +231,7 @@ bool		ImGui_ImplGnm_CreateFontsTexture(std::function<void(ImGuiIO& io)> loadFont
 	spec.m_textureType = sce::Gnm::kTextureType2d;
 	spec.m_width = width;
 	spec.m_height = height;
-	spec.m_format = sce::Gnm::kDataFormatR8G8B8A8Unorm;
+	spec.m_format = sce::Gnm::kDataFormatR8G8B8A8UnormSrgb;
 	int32_t status = g_fontTexture.init(&spec);
 	if (status != 0) 
 		return -1;

@@ -8,7 +8,7 @@
 #include "../render_context.h"
 #include "../shaders.h"
 
-namespace framework
+namespace render
 {
 	template<typename T>
 	class shader_program
@@ -20,8 +20,8 @@ namespace framework
 		{
 			return shader->load_from_array(shader_code);
 		}
-		void bind(sce::Gnmx::LightweightGfxContext* context);
 
+		void bind(sce::Gnmx::LightweightGfxContext* context);
 		void release();
 
 		T* shader;
@@ -37,8 +37,19 @@ namespace framework
 
 	};
 
-	class render_framework
+	class framework
 	{
 	public:
+		framework();
+		~framework();
+
+		inline render_context* get_context() { return context; }
+
+		void initialize(render_context* ctx);
+		void release();
+
+		
+
+		static inline render_context* context;
 	};
 }

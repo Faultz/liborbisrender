@@ -79,6 +79,7 @@
     <ClCompile Include="source\renderer\hooks\sce_video.cpp" />
     <ClCompile Include="source\renderer\render_context.cpp" />
     <ClCompile Include="source\renderer\shaders.cpp" />
+    <ClCompile Include="source\renderer\texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\renderer\framework\framework.h" />
@@ -86,7 +87,6 @@
     <ClInclude Include="source\renderer\gui\backend\imgui_impl_orbis.h" />
     <ClInclude Include="source\renderer\gui\imconfig.h" />
     <ClInclude Include="source\renderer\gui\imgui.h" />
-    <ClInclude Include="source\renderer\gui\imgui_hex_editor.h" />
     <ClInclude Include="source\renderer\gui\imgui_internal.h" />
     <ClInclude Include="source\renderer\gui\imstb_rectpack.h" />
     <ClInclude Include="source\renderer\gui\imstb_textedit.h" />
@@ -103,6 +103,7 @@
     <ClInclude Include="source\renderer\gui\stb_image.h" />
     <ClInclude Include="source\renderer\render_context.h" />
     <ClInclude Include="source\renderer\shaders.h" />
+    <ClInclude Include="source\renderer\texture.h" />
   </ItemGroup>
   <ItemGroup>
     <WavePsslc Include="source\renderer\gui\shaders\imgui_p.pssl">

@@ -1,5 +1,9 @@
 #include "framework.h"
 
-namespace framework
+namespace render
 {
+	void framework::initialize(render_context* ctx)
+	{
+		context = ctx;
+	}
 }

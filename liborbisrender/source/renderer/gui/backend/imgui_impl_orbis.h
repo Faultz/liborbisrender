@@ -10,10 +10,7 @@
 #include "../Shaders/imgui_srt_common.h"
 #include "../../shaders.h"
 
-namespace renderer
-{
-	class render_context;
-}
+class render_context;
 
 struct ImGui_ImplOrbis_Data
 {
@@ -21,7 +18,7 @@ struct ImGui_ImplOrbis_Data
     bool                        WantUpdateHasGamepad;
 	bool						HasTouchpadControl;
 	bool						HasMouseControl;
-	renderer::render_context*   graphicsContext;
+	render_context*   graphicsContext;
 	ScePadData m_sce_pad;
 	Frame::ImguiSrtData userData;
 
@@ -37,7 +34,7 @@ inline uint64_t g_time = 0;
 
 ImGui_ImplOrbis_Data* ImGui_ImplOrbis_GetBackendData();
 
-IMGUI_IMPL_API bool     ImGui_ImplOrbis_Init(renderer::render_context* context);
+IMGUI_IMPL_API bool     ImGui_ImplOrbis_Init(render_context* context);
 IMGUI_IMPL_API void     ImGui_ImplOrbis_Shutdown();
 IMGUI_IMPL_API void     ImGui_ImplOrbis_NewFrame();
 IMGUI_IMPL_API bool     ImGui_ImplOrbis_HandleEvent();
