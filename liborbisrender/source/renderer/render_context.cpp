@@ -292,7 +292,8 @@ texture render_context::create_texture(const std::string& file, bool should_use_
 
 render_context* render_context::get_instance()
 {
-	return instance_obj;
+	static render_context instance_obj;
+	return &instance_obj;
 }
 const int render_context::get_target_count() const
 {

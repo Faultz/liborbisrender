@@ -8,7 +8,6 @@ __declspec (dllexport) void dummy()
 }
 
 bool closed = false;
-render_context context;
 
 extern "C"
 {
@@ -26,7 +25,9 @@ extern "C"
 
 			liborbisutil::patcher::create("mutex on list patch", "libkernel.sprx", 0x7850, { 0xC3 }, true);
 
-			context.create(RenderAfterFlip | HookFlipVideoOut | FunctionImGui | FunctionRenderDebug | UnlockFps, [](int flipIndex) {
+			auto& context = *render_context::get_instance();
+
+			context.create(RenderAfterFlip | HookFlipVideoOut | FunctionImGui | FunctionRenderDebug | UnlockFps, [&](int flipIndex) {
 
 				if(context.begin_scene(flipIndex))
 				{
@@ -94,6 +95,7 @@ extern "C"
 	int __cdecl module_stop(size_t argc, const void* args)
 	{
 		liborbisutil::thread t([]() {
+			auto& context = *render_context::get_instance();
 			context.release();
 
 			liborbisutil::pad::finalize();
