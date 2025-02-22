@@ -21,12 +21,6 @@ int render_context::sceGnmSubmitAndFlipCommandBuffers_h(uint32_t count, void* dc
 		sceKernelWaitEqueue(context->eop_event_queue, &eop_event, 1, &num, nullptr);
 	}
 
-	//if (should_render_after_flip && (context->flags & StateDestroying) == 0)
-	//{
-	//	if (context->user_callback)
-	//		context->user_callback(displayBufferIndex);
-	//}
-
 	return res;
 }
 
