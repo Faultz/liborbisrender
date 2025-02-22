@@ -19,6 +19,7 @@
     <ClCompile Include="source\renderer\gui\imgui_widgets.cpp" />
     <ClCompile Include="source\renderer\framework\framework.cpp" />
     <ClCompile Include="source\renderer\texture.cpp" />
+    <ClCompile Include="source\renderer\hooks\sce_kernel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\renderer\render_context.h" />

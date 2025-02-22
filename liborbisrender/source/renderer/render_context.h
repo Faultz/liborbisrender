@@ -74,7 +74,6 @@ public:
 
 	bool begin_scene(int flip_index);
 	void update_scene();
-	void flip_scene(int flip_index);
 	void end_scene();
 
 	texture create_texture(const std::string& file, bool should_use_cache = false);

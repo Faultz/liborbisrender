@@ -197,13 +197,6 @@ bool render_context::begin_scene(int flip_index)
 	if (flags & StateDestroying)
 		return false;
 
-	while (*curr_frame_context->context_label != label_free)
-	{
-		SceKernelEvent eop_event;
-		int num;
-		sceKernelWaitEqueue(eop_event_queue, &eop_event, 1, &num, nullptr);
-	}
-
 	curr_frame_index = flip_index;
 	next_frame_index = (flip_index + 1) % target_count;
 	curr_frame_context = &frame_contexts[curr_frame_index];
@@ -264,19 +257,7 @@ void render_context::update_scene()
 		}
 	}
 }
-void render_context::flip_scene(int flip_index)
-{
-	if (!is_initialized())
-	{
-		return;
-	}
 
-	if (flags & StateDestroying)
-		return;
-
-	prev_frame_index = curr_frame_index;
-	curr_frame_index = (flip_index % target_count);
-}
 void render_context::end_scene()
 {
 	if (!is_initialized())

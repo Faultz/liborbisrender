@@ -18,11 +18,18 @@ int render_context::sceGnmSubmitAndFlipCommandBuffers_h(uint32_t count, void* dc
 
 	auto res = context->sceGnmSubmitAndFlipCommandBuffer_d.invoke<int>(count, dcbGpuAddrs, dcbSizesInBytes, ccbGpuAddrs, ccbSizesInBytes, videoOutHandle, displayBufferIndex, flipMode, flipArg);
 
-	if (should_render_after_flip && (context->flags & StateDestroying) == 0)
+	while (*context->curr_frame_context->context_label != label_free)
 	{
-		if (context->user_callback)
-			context->user_callback(displayBufferIndex);
+		SceKernelEvent eop_event;
+		int num;
+		sceKernelWaitEqueue(context->eop_event_queue, &eop_event, 1, &num, nullptr);
 	}
+
+	//if (should_render_after_flip && (context->flags & StateDestroying) == 0)
+	//{
+	//	if (context->user_callback)
+	//		context->user_callback(displayBufferIndex);
+	//}
 
 	return res;
 }
@@ -43,10 +50,11 @@ int render_context::sceGnmSubmitAndFlipCommandBuffersForWorkload_h(int workloadI
 
 	auto res = context->sceGnmSubmitAndFlipCommandBufferForWorkload_d.invoke<int>(workloadId, count, dcbGpuAddrs, dcbSizesInBytes, ccbGpuAddrs, ccbSizesInBytes, videoOutHandle, displayBufferIndex, flipMode, flipArg);
 
-	if (should_render_after_flip && (context->flags & StateDestroying) == 0)
+	while (*context->curr_frame_context->context_label != label_free)
 	{
-		if (context->user_callback)
-			context->user_callback(displayBufferIndex);
+		SceKernelEvent eop_event;
+		int num;
+		sceKernelWaitEqueue(context->eop_event_queue, &eop_event, 1, &num, nullptr);
 	}
 
 	return res;
