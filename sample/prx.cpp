@@ -50,30 +50,10 @@ extern "C"
 
 				}, [](ImGuiIO& io) {
 
-					// calculate font scale based on screen resolution and if we're in neomode
-					liborbisutil::math::vector2 screen_size = { static_cast<float>(render_context::video_out_info->width), static_cast<float>(render_context::video_out_info->height) };
-					
-					float base_scale = 1.0f;
-					if (screen_size.x >= 3840 && screen_size.y >= 2160) {
-						// 4K resolution
-						base_scale = 2.0f;
-					}
-					else if (screen_size.x >= 2560 && screen_size.y >= 1440) {
-						// 1440p resolution
-						base_scale = 1.5f;
-					}
-					else {
-						// 1080p or lower
-						base_scale = 1.0f;
-					}
-
 					for (auto file : liborbisutil::directory_iterator("/data/ImGui Fonts"))
 					{
-
 						io.Fonts->AddFontFromFileTTF(file.data(), 16.0f);
 					}
-
-					io.FontGlobalScale = base_scale;
 
 					});
 
