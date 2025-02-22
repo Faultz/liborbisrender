@@ -197,6 +197,7 @@ bool render_context::begin_scene(int flip_index)
 	if (flags & StateDestroying)
 		return false;
 
+	prev_frame_index = curr_frame_index;
 	curr_frame_index = flip_index;
 	next_frame_index = (flip_index + 1) % target_count;
 	curr_frame_context = &frame_contexts[curr_frame_index];
