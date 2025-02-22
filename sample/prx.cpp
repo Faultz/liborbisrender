@@ -27,7 +27,7 @@ extern "C"
 
 			auto& context = *render_context::get_instance();
 
-			context.create(RenderAfterFlip | HookFlipVideoOut | FunctionImGui | FunctionRenderDebug | UnlockFps, [&](int flipIndex) {
+			context.create(HookFlip | FunctionImGui | FunctionRenderDebug | UnlockFps, [&](int flipIndex) {
 
 				if(context.begin_scene(flipIndex))
 				{

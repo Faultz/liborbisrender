@@ -38,7 +38,7 @@ enum render_label
 
 enum render_flags
 {
-	RenderAfterFlip = 1 << 0,
+	RenderBeforeFlip = 1 << 0,
 
 	FunctionImGui = 1 << 1,
 	FunctionRenderDebug = 1 << 2,
@@ -69,7 +69,7 @@ struct debug_context
 class render_context
 {
 public:
-	bool create(uint32_t flags, std::function<void(int)> user_callback, std::function<void(ImGuiIO&)> load_fonts_cb = nullptr);
+	bool create(uint32_t flags, std::function<void(int)> user_callback = nullptr, std::function<void(ImGuiIO&)> load_fonts_cb = nullptr);
 	void release();
 
 	bool begin_scene(int flip_index);
