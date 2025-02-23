@@ -2,12 +2,12 @@
 #include <liborbisrender.h>
 #include <png_dec.h>
 
+#include <audioout.h>
+
 // We need to provide an export to force the expected stub library to be generated
 __declspec (dllexport) void dummy()
 {
 }
-
-bool closed = false;
 
 extern "C"
 {
@@ -37,11 +37,11 @@ extern "C"
 					ImGui::Begin("Hello, world!");
 					ImGui::Text("This is some useful text.");
 
-					//static texture tex("https://cataas.com/cat");
-					//if (tex)
-					//{
-					//	ImGui::Image(&tex, { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y });
-					//}
+					static texture tex("https://cataas.com/cat");
+					if (tex)
+					{
+						ImGui::Image(&tex, { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y });
+					}
 
 					ImGui::End();
 
