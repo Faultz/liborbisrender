@@ -59,73 +59,74 @@ void ImGui_ImplOrbis_Shutdown()
 // Because of that, it is a little more complicated than your typical single-viewport binding code!
 static void ImGui_ImplOrbis_UpdateMouseData()
 {
-    //ImGuiIO& io = ImGui::GetIO();
-    //ImGui_ImplOrbis_Data* bd = ImGui_ImplOrbis_GetBackendData();
-    //if (!bd->HasMouseControl)
-    //    return;
+    ImGuiIO& io = ImGui::GetIO();
+    ImGui_ImplOrbis_Data* bd = ImGui_ImplOrbis_GetBackendData();
+    if (!bd->HasMouseControl)
+        return;
 
-    //constexpr float kMarginCursor = 10.0f;
+    constexpr float kMarginCursor = 10.0f;
 
-    //float rightStickX = liborbis::pad::get_right_stick_x(), rightStickY = liborbis::pad::get_right_stick_y();
+    float rightStickX = liborbisutil::pad::get_right_stick_x(), rightStickY = liborbisutil::pad::get_right_stick_y();
 
-    //io.MouseDrawCursor = true;
+    io.MouseDrawCursor = true;
 
-    //if (abs(rightStickX) > 0.1f)
-    //{
-    //    io.MousePos.x += ((rightStickX * (float)video->width) / 80.0f);
-    //    if (io.MousePos.x > video->width - kMarginCursor) io.MousePos.x = video->width - kMarginCursor;
-    //    if (io.MousePos.x < 0) io.MousePos.x = 0;
-    //}
+    if (abs(rightStickX) > 0.1f)
+    {
+        io.MousePos.x += ((rightStickX * (float)video->width) / 80.0f);
+        if (io.MousePos.x > video->width - kMarginCursor) io.MousePos.x = video->width - kMarginCursor;
+        if (io.MousePos.x < 0) io.MousePos.x = 0;
+    }
 
-    //if (abs(rightStickY) > 0.1f)
-    //{
-    //    io.MousePos.y += ((rightStickY * (float)video->height) / 80.0f);
-    //    if (io.MousePos.y > video->height - kMarginCursor) io.MousePos.y = video->height - kMarginCursor;
-    //    if (io.MousePos.y < 0) io.MousePos.y = 0;
-    //}
+    if (abs(rightStickY) > 0.1f)
+    {
+        io.MousePos.y += ((rightStickY * (float)video->height) / 80.0f);
+        if (io.MousePos.y > video->height - kMarginCursor) io.MousePos.y = video->height - kMarginCursor;
+        if (io.MousePos.y < 0) io.MousePos.y = 0;
+    }
 
-    //if (pad::is_down(pad::button::l1) || pad::is_down(pad::button::r1))
-    //{
-    //    io.MouseDown[0] = true;
-    //}
-    //else
-    //    io.MouseDown[0] = false;
+    if (liborbisutil::pad::is_down(liborbisutil::pad::buttons::l1) || liborbisutil::pad::is_down(liborbisutil::pad::buttons::r1))
+    {
+        io.MouseDown[0] = true;
+    }
+    else
+        io.MouseDown[0] = false;
 }
 
 static void ImGui_ImplOrbis_UpdateTouchpad()
 {
+    ImGuiIO& io = ImGui::GetIO();
     ImGui_ImplOrbis_Data* bd = ImGui_ImplOrbis_GetBackendData();
     if (!bd->HasTouchpadControl)
         return;
 
-    //constexpr float kMarginCursor = 10.0f;
+    constexpr float kMarginCursor = 10.0f;
 
-    //static auto prevTouchData = liborbis::pad::get_touchpad(0);
-    //auto touchData = liborbis::pad::get_touchpad(0);
+    static auto prevTouchData = liborbisutil::pad::get_touchpad(0);
+    auto touchData = liborbisutil::pad::get_touchpad(0);
 
-    //ScePadData data = bd->m_sce_pad;
+    ScePadData data = bd->m_sce_pad;
 
-    //if (data.touchData.touchNum > 0)
-    //{
+    if (data.touchData.touchNum > 0)
+    {
 
-    //    if (prevTouchData.id != 255 && prevTouchData.id == touchData.id)
-    //    {
-    //        io.MousePos.x += ((touchData.input.x - prevTouchData.input.x) * (float)video->width / 2.0f);
-    //        if (io.MousePos.x > video->width - kMarginCursor)	io.MousePos.x = video->width - kMarginCursor;
-    //        if (io.MousePos.x < 0)								io.MousePos.x = 0;
-    //        io.MousePos.y += ((touchData.input.y - prevTouchData.input.y) * (float)video->height / 2.0f);
-    //        if (io.MousePos.y > video->height - kMarginCursor)	io.MousePos.y = video->height - kMarginCursor;
-    //        if (io.MousePos.y < 0)								io.MousePos.y = 0;
-    //    }
+        if (prevTouchData.id != 255 && prevTouchData.id == touchData.id)
+        {
+            io.MousePos.x += ((touchData.input.x - prevTouchData.input.x) * (float)video->width / 2.0f);
+            if (io.MousePos.x > video->width - kMarginCursor)	io.MousePos.x = video->width - kMarginCursor;
+            if (io.MousePos.x < 0)								io.MousePos.x = 0;
+            io.MousePos.y += ((touchData.input.y - prevTouchData.input.y) * (float)video->height / 2.0f);
+            if (io.MousePos.y > video->height - kMarginCursor)	io.MousePos.y = video->height - kMarginCursor;
+            if (io.MousePos.y < 0)								io.MousePos.y = 0;
+        }
 
-    //    //io.MousePos[0] = pad::is_down(pad::button::touchpad);
+        //io.MousePos[0] = pad::is_down(pad::button::touchpad);
 
-    //    prevTouchData = touchData;
-    //}
-    //else
-    //{
-    //     prevTouchData.id = 255;
-    //}
+        prevTouchData = touchData;
+    }
+    else
+    {
+         prevTouchData.id = 255;
+    }
 }
 
 // Gamepad navigation mapping
