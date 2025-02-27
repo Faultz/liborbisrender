@@ -12,15 +12,32 @@
 
 class render_context;
 
+enum ImGui_Osk_State
+{
+	OSK_IDLE = 0,
+	OSK_OPENED = 1,
+	OSK_ENTERED = 2,
+	OSK_CLOSED = 3,
+	OSK_CANCELLED = 4
+};
+
+struct ImGui_ImplOrbis_Osk
+{
+	ImGui_Osk_State State;
+	bool WantTextInput;
+	wchar_t Text[1024];
+};
+
 struct ImGui_ImplOrbis_Data
 {
     bool                        HasGamepad;
     bool                        WantUpdateHasGamepad;
 	bool						HasTouchpadControl;
 	bool						HasMouseControl;
-	render_context*   graphicsContext;
-	ScePadData m_sce_pad;
-	Frame::ImguiSrtData userData;
+	render_context*				renderContext;
+	ScePadData					m_sce_pad;
+	Frame::ImguiSrtData			userData;
+	ImGui_ImplOrbis_Osk 		osk;
 
     ImGui_ImplOrbis_Data() { memset(this, 0, sizeof(*this)); }
 };

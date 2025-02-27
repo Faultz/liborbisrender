@@ -97,7 +97,7 @@ void        ImGui_ImplGnm_RenderDrawData(ImDrawData* draw_data, sce::Gnmx::Light
 	auto& vertex_buffer = m_vtx_buffer[target];
 	auto& index_buffer = m_idx_buffer[target];
 
-	auto& m_garlic = *bd->graphicsContext->garlic_memory_allocator;
+	auto& m_garlic = *bd->renderContext->garlic_memory_allocator;
 
 	sce::Gnmx::LightweightGfxContext* dcb = context;
 
@@ -155,7 +155,7 @@ void        ImGui_ImplGnm_RenderDrawData(ImDrawData* draw_data, sce::Gnmx::Light
 		userData.m_frameData->m_vertex = buf;
 
 		userData.m_frameData->m_hdr = false;
-		userData.m_frameData->srgb = bd->graphicsContext->target_is_srgb;
+		userData.m_frameData->srgb = bd->renderContext->target_is_srgb;
 	}
 
 	ImGui_ImplGnm_SetupRenderState(dcb, draw_data);
@@ -207,7 +207,7 @@ bool		ImGui_ImplGnm_CreateFontsTexture(std::function<void(ImGuiIO& io)> loadFont
 	ImGui_ImplOrbis_Data* bd = ImGui_ImplOrbis_GetBackendData();
 	IM_ASSERT(bd != NULL && "Did you call ImGui_ImplOrbis_Init()?");
 
-	auto& m_garlic = *bd->graphicsContext->garlic_memory_allocator;
+	auto& m_garlic = *bd->renderContext->garlic_memory_allocator;
 
 	ImGuiIO& io = ImGui::GetIO();
 	unsigned char* pixels;
@@ -273,7 +273,7 @@ bool        ImGui_ImplGnm_CreateDeviceObjects()
 	ImGui_ImplOrbis_Data* bd = ImGui_ImplOrbis_GetBackendData();
 	IM_ASSERT(bd != NULL && "Did you call ImGui_ImplOrbis_Init()?");
 
-	auto& m_garlic = *bd->graphicsContext->garlic_memory_allocator;
+	auto& m_garlic = *bd->renderContext->garlic_memory_allocator;
 
 	extern char _binary_imgui_p_sb_start[], _binary_imgui_vv_sb_start[];
 

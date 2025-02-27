@@ -2,6 +2,8 @@
 #include "imgui_impl_orbis.h"
 #include "../../render_context.h"
 
+#include <ime_dialog.h>
+
 SceVideoOutBuffers* video;
 
 // Backend data stored in io.BackendPlatformUserData to allow support for multiple Dear ImGui contexts
@@ -32,7 +34,7 @@ bool ImGui_ImplOrbis_Init(render_context* context)
     //    io.BackendFlags |= (ImGuiBackendFlags_HasMouseCursors | ImGuiBackendFlags_HasSetMousePos);
     //}
 
-    bd->graphicsContext = context;
+    bd->renderContext = context;
 
     video = context->video_out_info;
 
@@ -108,7 +110,6 @@ static void ImGui_ImplOrbis_UpdateTouchpad()
 
     if (data.touchData.touchNum > 0)
     {
-
         if (prevTouchData.id != 255 && prevTouchData.id == touchData.id)
         {
             io.MousePos.x += ((touchData.input.x - prevTouchData.input.x) * (float)video->width / 2.0f);
@@ -127,6 +128,88 @@ static void ImGui_ImplOrbis_UpdateTouchpad()
     {
          prevTouchData.id = 255;
     }
+}
+
+static void ImGui_ImplOrbis_UpdateOsk()
+{
+    ImGuiIO& io = ImGui::GetIO();
+    ImGui_ImplOrbis_Data* bd = ImGui_ImplOrbis_GetBackendData();
+    if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) == 0)
+        return;
+
+    switch (bd->osk.State)
+    {
+    case OSK_IDLE:
+    {
+        bool should_spawn_osk = io.WantTextInput && (bd->osk.WantTextInput != io.WantTextInput);
+
+        if (should_spawn_osk)
+        {
+            wcscpy(bd->osk.Text, L"");
+
+            sceSysmoduleLoadModule(SCE_SYSMODULE_IME_DIALOG);
+
+            SceImeDialogParam param;
+            memset(&param, 0, sizeof(SceImeDialogParam));
+
+            param.inputTextBuffer = bd->osk.Text;
+            param.maxTextLength = 1024;
+            param.enterLabel = SCE_IME_ENTER_LABEL_DEFAULT;
+            param.type = SCE_IME_TYPE_DEFAULT;
+            param.title = L"Enter text";
+            param.placeholder = L"Enter text";
+            param.userId = SCE_USER_SERVICE_USER_ID_EVERYONE;
+
+            param.posx = (video->width / 2);
+            param.posy = (video->height / 2);
+            param.horizontalAlignment = SCE_IME_HALIGN_CENTER;
+            param.verticalAlignment = SCE_IME_VALIGN_CENTER;
+            sceImeDialogInit(&param, nullptr);
+
+            bd->osk.State = OSK_OPENED;
+        }
+        break;
+    }
+    case OSK_OPENED:
+    {
+        auto dialogStatus = sceImeDialogGetStatus();
+        if (dialogStatus == SCE_IME_DIALOG_STATUS_FINISHED)
+        {
+            bd->osk.State = OSK_CLOSED;
+        }
+        break;
+    }
+    case OSK_CLOSED:
+    {
+        // get result and convert to utf8 std::string
+        SceImeDialogResult result;
+        memset(&result, 0, sizeof(result));
+
+        sceImeDialogGetResult(&result);
+
+        bd->osk.State = result.endstatus == SCE_IME_DIALOG_END_STATUS_OK ? OSK_ENTERED : OSK_CANCELLED;
+        break;
+    }
+    case OSK_ENTERED:
+    {
+        std::string str(bd->osk.Text, bd->osk.Text + wcslen(bd->osk.Text));
+
+        io.ClearInputCharacters();
+        io.AddInputCharactersUTF8(str.c_str());
+
+        sceImeDialogTerm();
+        bd->osk.State = OSK_IDLE;
+        break;
+    }
+    case OSK_CANCELLED:
+    {
+        sceImeDialogTerm();
+        bd->osk.State = OSK_IDLE;
+        break;
+    }
+    }
+
+    bd->osk.WantTextInput = io.WantTextInput;
 }
 
 // Gamepad navigation mapping
@@ -231,6 +314,9 @@ void ImGui_ImplOrbis_NewFrame()
 
     // Update touchpad controls
     ImGui_ImplOrbis_UpdateTouchpad();
+
+	// Update osk controls
+    ImGui_ImplOrbis_UpdateOsk();
 }
 
 bool ImGui_ImplOrbis_HandleEvent()
