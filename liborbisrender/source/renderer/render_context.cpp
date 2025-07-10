@@ -275,11 +275,13 @@ void render_context::end_scene()
 		ImGui_ImplGnm_RenderDrawData(ImGui::GetDrawData(), current_lw_context);
 	}
 
-	current_lw_context->writeAtEndOfPipeWithInterrupt(sce::Gnm::kEopFlushCbDbCaches, sce::Gnm::kEventWriteDestMemory, (void*)curr_frame_context->context_label, sce::Gnm::kEventWriteSource64BitsImmediate,
+	current_lw_context->writeAtEndOfPipe(sce::Gnm::kEopFlushCbDbCaches, sce::Gnm::kEventWriteDestMemory, (void*)curr_frame_context->context_label, sce::Gnm::kEventWriteSource64BitsImmediate,
 		label_free, sce::Gnm::kCacheActionNone, sce::Gnm::kCachePolicyBypass);
 	current_lw_context->waitOnAddress((void*)curr_frame_context->context_label, label_free, sce::Gnm::kWaitCompareFuncEqual, 1);
 
 	current_lw_context->submit();
+
+	sce::Gnm::submitDone();
 }
 
 texture render_context::create_texture(const std::string& file, bool should_use_cache)
