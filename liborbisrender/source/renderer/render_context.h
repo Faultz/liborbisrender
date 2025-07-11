@@ -40,17 +40,19 @@ enum render_flags
 {
 	RenderBeforeFlip = 1 << 0,
 
-	FunctionImGui = 1 << 1,
-	FunctionRenderDebug = 1 << 2,
+	SubmitSelf = 1 << 1,
 
-	HookFlip = 1 << 3,
-	HookFlipForWorkload = 1 << 4,
-	HookFlipVideoOut = 1 << 5,
+	FunctionImGui = 1 << 2,
+	FunctionRenderDebug = 1 << 3,
 
-	StateRunning = 1 << 6,
-	StateDestroying = 1 << 7,
+	HookFlip = 1 << 4,
+	HookFlipForWorkload = 1 << 5,
+	HookFlipVideoOut = 1 << 6,
 
-	UnlockFps = 1 << 8,
+	StateRunning = 1 << 7,
+	StateDestroying = 1 << 8,
+
+	UnlockFps = 1 << 9
 };
 
 struct frame_context

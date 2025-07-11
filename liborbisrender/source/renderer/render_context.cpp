@@ -281,7 +281,8 @@ void render_context::end_scene()
 
 	current_lw_context->submit();
 
-	sce::Gnm::submitDone();
+	if (flags & SubmitSelf)
+		sce::Gnm::submitDone();
 }
 
 texture render_context::create_texture(const std::string& file, bool should_use_cache)
