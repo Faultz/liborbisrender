@@ -66,12 +66,12 @@ bool render_context::create(uint32_t flags, std::function<void(int)> user_callba
 	create_contexts();
 	create_event_queue();
 
-	current_lw_context = context.get();
+	current_lw_context = context;
 	prev_frame_index = 0;
 	curr_frame_index = 0;
 	next_frame_index = 0;
-	curr_frame_context = &frame_contexts[0];
-	prev_frame_context = &frame_contexts[1];
+	curr_frame_context = frame_contexts[0];
+	prev_frame_context = frame_contexts[1];
 
 	if (flags & FunctionImGui)
 	{
@@ -185,6 +185,8 @@ void render_context::release()
 	release_contexts();
 	release_garlic_allocator();
 	release_onion_allocator();
+
+	LOG_INFO("render context cleanup done!\n");
 }
 
 bool render_context::begin_scene(int flip_index)
@@ -200,8 +202,8 @@ bool render_context::begin_scene(int flip_index)
 	prev_frame_index = curr_frame_index;
 	curr_frame_index = flip_index;
 	next_frame_index = (flip_index + 1) % target_count;
-	curr_frame_context = &frame_contexts[curr_frame_index];
-	prev_frame_context = &frame_contexts[prev_frame_index];
+	curr_frame_context = frame_contexts[curr_frame_index];
+	prev_frame_context = frame_contexts[prev_frame_index];
 	current_lw_context = curr_frame_context->context;
 
 	*curr_frame_context->context_label = label_active;
@@ -335,7 +337,7 @@ bool render_context::create_onion_allocator(size_t size)
 }
 bool render_context::create_device()
 {
-	auto device = std::make_unique<sce::Gnmx::LightweightGfxContext>();
+	auto device = new sce::Gnmx::LightweightGfxContext();
 
 	constexpr int k_command_buffer_size = 4_MB;
 	const uint32_t k_num_batches = 100;
@@ -357,7 +359,7 @@ bool render_context::create_device()
 
 	device->init(draw_command_buffer, k_command_buffer_size, resource_buffer, resource_buffer_size, nullptr);
 
-	context = std::move(device);
+	context = device;
 
 	return true;
 }
@@ -429,17 +431,17 @@ bool render_context::create_contexts()
 	for (int i = 0; i < target_count; i++)
 	{
 		auto frame = new frame_context();
-		frame->context = context.get();
+		frame->context = context;
 		frame->target = &render_targets[i];
 
 		frame->context_label = reinterpret_cast<volatile uint64_t*>(garlic_memory_allocator->allocate(sizeof(uint64_t), 8, "context label"));
 		*frame->context_label = label_free;
 
-		frame_contexts[i] = *frame;
+		frame_contexts[i] = frame;
 	}
 
-	prev_frame_context = &frame_contexts[0];
-	curr_frame_context = &frame_contexts[1];
+	prev_frame_context = frame_contexts[0];
+	curr_frame_context = frame_contexts[1];
 
 	return true;
 }
@@ -454,7 +456,7 @@ void render_context::clear_submits()
 	{
 	}
 
-	context.reset();
+	garlic_memory_allocator->free((void*)release_label);
 }
 
 void render_context::release_hooks()
@@ -485,7 +487,7 @@ void render_context::release_device()
 {
 	if (context)
 	{
-		context.reset();
+		delete context;
 
 		LOG_DEBUG("device released\n");
 	}
@@ -508,4 +510,15 @@ void render_context::release_contexts()
 
 	prev_frame_context = nullptr;
 	curr_frame_context = nullptr;
+
+	for (auto& frame : frame_contexts)
+	{
+		if (frame)
+		{
+			garlic_memory_allocator->free((void*)frame->context_label);
+
+			delete frame;
+			frame = nullptr;
+		}
+	}
 }

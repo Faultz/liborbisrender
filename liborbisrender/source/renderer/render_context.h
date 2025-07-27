@@ -122,8 +122,8 @@ private:
 	void release_contexts();
 
 	// per instance context
-	std::unique_ptr<sce::Gnmx::LightweightGfxContext> context;
-	frame_context frame_contexts[3];
+	sce::Gnmx::LightweightGfxContext* context;
+	frame_context* frame_contexts[3];
 	SceKernelEqueue eop_event_queue;
 	int target_count;
 
