@@ -6,6 +6,7 @@
 
 #include <gnm.h>
 #include <gnmx.h>
+#include <shader_liveediting.h>
 
 #include <liborbisutil.h>
 #include "gui/backend/imgui_impl_orbis.h"
@@ -52,7 +53,7 @@ enum render_flags
 	StateRunning = 1 << 7,
 	StateDestroying = 1 << 8,
 
-	UnlockFps = 1 << 9
+	UnlockFps = 1 << 10
 };
 
 struct frame_context
@@ -68,15 +69,40 @@ struct debug_context
 	std::vector<float> frame_fps_history;
 };
 
+struct gnm_prepare_flip
+{
+	uint32_t magic;
+	uint32_t unk;
+	uint64_t context_label;
+	uint64_t expected_label;
+};
+
+class eop_event
+{
+public:
+	eop_event() = default;
+	~eop_event();
+	void create(const std::string& name);
+	void release();
+
+	bool wait();
+
+	SceKernelEqueue equeue;
+	std::string name;
+};
+
 class render_context
 {
 public:
 	bool create(uint32_t flags, std::function<void(int)> user_callback = nullptr, std::function<void(ImGuiIO&)> load_fonts_cb = nullptr);
 	void release();
 
-	bool begin_scene(int flip_index);
-	void update_scene();
-	void end_scene();
+	bool begin_frame(int flip_index);
+	void update_frame();
+	void end_frame();
+
+	void stall();
+	void advance_frame();
 
 	texture create_texture(const std::string& file, bool should_use_cache = false);
 
@@ -89,7 +115,6 @@ public:
 	// per frame context
 	uint32_t prev_frame_index;
 	uint32_t curr_frame_index;
-	uint32_t next_frame_index;
 
 	frame_context* prev_frame_context;
 	frame_context* curr_frame_context;
@@ -124,7 +149,7 @@ private:
 	// per instance context
 	sce::Gnmx::LightweightGfxContext* context;
 	frame_context* frame_contexts[3];
-	SceKernelEqueue eop_event_queue;
+	eop_event eop_event_queue;
 	int target_count;
 
 	// user callback (supplied to the renderer, used in hooks)

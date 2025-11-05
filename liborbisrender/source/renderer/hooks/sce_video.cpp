@@ -24,12 +24,7 @@ int render_context::sceVideoOutSubmitFlip_h(uint32_t videoOutHandle, uint32_t di
 			context->user_callback((displayBufferIndex + 1) % context->get_target_count());
 	}
 
-	while (*context->curr_frame_context->context_label != label_free)
-	{
-		SceKernelEvent eop_event;
-		int num;
-		sceKernelWaitEqueue(context->eop_event_queue, &eop_event, 1, &num, nullptr);
-	}
+	context->stall();
 
 	return res;
 }

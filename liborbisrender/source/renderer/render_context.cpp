@@ -9,6 +9,42 @@ void freeMem(void* ptr, void* userData)
 	render_context::onion_memory_allocator->free(ptr);
 }
 
+eop_event::~eop_event()
+{
+}
+
+void eop_event::create(const std::string& name)
+{
+	SceKernelEqueue event_queue;
+	auto res = sceKernelCreateEqueue(&event_queue, "eop event queue");
+	if (res < 0)
+	{
+		LOG_ERROR("failed to create event queue: 0x%08X\n", res);
+		return;
+	}
+
+	sce::Gnm::addEqEvent(event_queue, sce::Gnm::kEqEventGfxEop, nullptr);
+
+	this->equeue = event_queue;
+	this->name = name;
+}
+
+void eop_event::release()
+{
+	sceKernelDeleteEqueue(equeue);
+}
+
+bool eop_event::wait()
+{
+	SceKernelEvent ev;
+	int num;
+	const int32_t error = sceKernelWaitEqueue(equeue, &ev, 1, &num, nullptr);
+	SCE_GNM_ASSERT(error == SCE_OK);
+	return true;
+}
+
+
+
 bool render_context::create(uint32_t flags, std::function<void(int)> user_callback, std::function<void(ImGuiIO&)> load_fonts_cb)
 {
 	if (is_initialized())
@@ -69,7 +105,6 @@ bool render_context::create(uint32_t flags, std::function<void(int)> user_callba
 	current_lw_context = context;
 	prev_frame_index = 0;
 	curr_frame_index = 0;
-	next_frame_index = 0;
 	curr_frame_context = frame_contexts[0];
 	prev_frame_context = frame_contexts[1];
 
@@ -189,7 +224,7 @@ void render_context::release()
 	LOG_INFO("render context cleanup done!\n");
 }
 
-bool render_context::begin_scene(int flip_index)
+bool render_context::begin_frame(int flip_index)
 {
 	if (!is_initialized())
 	{
@@ -201,7 +236,6 @@ bool render_context::begin_scene(int flip_index)
 
 	prev_frame_index = curr_frame_index;
 	curr_frame_index = flip_index;
-	next_frame_index = (flip_index + 1) % target_count;
 	curr_frame_context = frame_contexts[curr_frame_index];
 	prev_frame_context = frame_contexts[prev_frame_index];
 	current_lw_context = curr_frame_context->context;
@@ -223,7 +257,7 @@ bool render_context::begin_scene(int flip_index)
 
 	return true;
 }
-void render_context::update_scene()
+void render_context::update_frame()
 {
 	if (!is_initialized())
 	{
@@ -255,13 +289,12 @@ void render_context::update_scene()
 			ImGui::Text("FPS: %.1f", fps);
 
 			ImGui::Text("Frame Index: %d", curr_frame_index);
-			ImGui::Text("Next Frame Index: %d", next_frame_index);
 			ImGui::End();
 		}
 	}
 }
 
-void render_context::end_scene()
+void render_context::end_frame()
 {
 	if (!is_initialized())
 	{
@@ -280,19 +313,35 @@ void render_context::end_scene()
 	if (flags & SubmitSelf)
 	{
 		current_lw_context->writeAtEndOfPipe(sce::Gnm::kEopFlushCbDbCaches, sce::Gnm::kEventWriteDestMemory, (void*)curr_frame_context->context_label, sce::Gnm::kEventWriteSource64BitsImmediate,
-			label_free, sce::Gnm::kCacheActionNone, sce::Gnm::kCachePolicyBypass);
+			label_free, sce::Gnm::kCacheActionNone, sce::Gnm::kCachePolicyLru);
 	}
 	else
 	{
 		current_lw_context->writeAtEndOfPipeWithInterrupt(sce::Gnm::kEopFlushCbDbCaches, sce::Gnm::kEventWriteDestMemory, (void*)curr_frame_context->context_label, sce::Gnm::kEventWriteSource64BitsImmediate,
-			label_free, sce::Gnm::kCacheActionNone, sce::Gnm::kCachePolicyBypass);
+			label_free, sce::Gnm::kCacheActionNone, sce::Gnm::kCachePolicyLru);
 	}
-	current_lw_context->waitOnAddress((void*)curr_frame_context->context_label, label_free, sce::Gnm::kWaitCompareFuncEqual, 1);
+
+	//current_lw_context->waitOnAddress((void*)curr_frame_context->context_label, label_free, sce::Gnm::kWaitCompareFuncEqual, 1);
 
 	current_lw_context->submit();
 
 	if (flags & SubmitSelf)
 		sce::Gnm::submitDone();
+}
+
+void render_context::stall()
+{
+	while (static_cast<uint32_t>(*curr_frame_context->context_label) != label_free)
+		eop_event_queue.wait();
+}
+
+void render_context::advance_frame()
+{
+	prev_frame_index = curr_frame_index;
+	curr_frame_index = (curr_frame_index + 1) % target_count;
+
+	prev_frame_context = frame_contexts[prev_frame_index];
+	curr_frame_context = frame_contexts[curr_frame_index];
 }
 
 texture render_context::create_texture(const std::string& file, bool should_use_cache)
@@ -421,16 +470,7 @@ bool render_context::create_render_targets()
 }
 bool render_context::create_event_queue()
 {
-	SceKernelEqueue event_queue;
-	auto res = sceKernelCreateEqueue(&event_queue, "eop event queue");
-	if (res < 0)
-	{
-		LOG_ERROR("failed to create event queue: 0x%08X\n", res);
-		return false;
-	}
-
-	sce::Gnm::addEqEvent(event_queue, sce::Gnm::kEqEventGfxEop, nullptr);
-	eop_event_queue = event_queue;
+	eop_event_queue.create("render context eop event queue");
 
 	return true;
 }
@@ -506,9 +546,7 @@ void render_context::release_render_targets()
 }
 void render_context::release_event_queue()
 {
-	sceKernelDeleteEqueue(eop_event_queue);
-	sce::Gnm::deleteEqEvent(eop_event_queue, sce::Gnm::kEqEventGfxEop);
-
+	eop_event_queue.release();
 	LOG_DEBUG("event queue released\n");
 
 }

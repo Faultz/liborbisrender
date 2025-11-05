@@ -16,14 +16,24 @@ int render_context::sceGnmSubmitAndFlipCommandBuffers_h(uint32_t count, void* dc
 			context->user_callback(displayBufferIndex);
 	}
 
+	context->stall();
+
+	// get last 0x100 bytes of the dbGpuAddr for debugging
+	auto dcb_gpu_addr = reinterpret_cast<uint8_t*>(dcbGpuAddrs[0]);
+	auto prepare_flip_packet = *(gnm_prepare_flip*)(dcb_gpu_addr + dcbSizesInBytes[0] - 0x100);
+
 	auto res = context->sceGnmSubmitAndFlipCommandBuffer_d.invoke<int>(count, dcbGpuAddrs, dcbSizesInBytes, ccbGpuAddrs, ccbSizesInBytes, videoOutHandle, displayBufferIndex, flipMode, flipArg);
 
-	while (*context->curr_frame_context->context_label != label_free)
+	if (prepare_flip_packet.unk == 0x68750778)
 	{
-		SceKernelEvent eop_event;
-		int num;
-		sceKernelWaitEqueue(context->eop_event_queue, &eop_event, 1, &num, nullptr);
+		while (prepare_flip_packet.context_label != prepare_flip_packet.expected_label)
+		{
+			sceKernelUsleep(1);
+		}
 	}
+
+	context->advance_frame();
+	context->stall();
 
 	if (!should_render_after_flip && (context->flags & StateDestroying) == 0)
 	{
@@ -50,12 +60,7 @@ int render_context::sceGnmSubmitAndFlipCommandBuffersForWorkload_h(int workloadI
 
 	auto res = context->sceGnmSubmitAndFlipCommandBufferForWorkload_d.invoke<int>(workloadId, count, dcbGpuAddrs, dcbSizesInBytes, ccbGpuAddrs, ccbSizesInBytes, videoOutHandle, displayBufferIndex, flipMode, flipArg);
 
-	while (*context->curr_frame_context->context_label != label_free)
-	{
-		SceKernelEvent eop_event;
-		int num;
-		sceKernelWaitEqueue(context->eop_event_queue, &eop_event, 1, &num, nullptr);
-	}
+	context->stall();
 
 	if (!should_render_after_flip && (context->flags & StateDestroying) == 0)
 	{
