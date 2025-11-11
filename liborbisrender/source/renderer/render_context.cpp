@@ -9,32 +9,30 @@ void freeMem(void* ptr, void* userData)
 	render_context::onion_memory_allocator->free(ptr);
 }
 
-eop_event::~eop_event()
+eqevent::~eqevent()
 {
 }
 
-void eop_event::create(const std::string& name)
+void eqevent::create(const std::string& name)
 {
 	SceKernelEqueue event_queue;
-	auto res = sceKernelCreateEqueue(&event_queue, "eop event queue");
+	auto res = sceKernelCreateEqueue(&event_queue, name.data());
 	if (res < 0)
 	{
 		LOG_ERROR("failed to create event queue: 0x%08X\n", res);
 		return;
 	}
 
-	sce::Gnm::addEqEvent(event_queue, sce::Gnm::kEqEventGfxEop, nullptr);
-
 	this->equeue = event_queue;
 	this->name = name;
 }
 
-void eop_event::release()
+void eqevent::release()
 {
 	sceKernelDeleteEqueue(equeue);
 }
 
-bool eop_event::wait()
+bool eqevent::wait()
 {
 	SceKernelEvent ev;
 	int num;
@@ -43,7 +41,36 @@ bool eop_event::wait()
 	return true;
 }
 
+critical_section::critical_section(const std::string& name, int spin_count)
+{
+	static ScePthreadMutexattr attr;
+	if (!attr) {
+		scePthreadMutexattrInit(&attr);
+		scePthreadMutexattrSettype(&attr, SCE_PTHREAD_MUTEX_RECURSIVE);
+	}
 
+	scePthreadMutexInit(&mutex, &attr, NULL);
+}
+
+critical_section::~critical_section()
+{
+	scePthreadMutexDestroy(&mutex);
+}
+
+void critical_section::enter()
+{
+	scePthreadMutexLock(&mutex);
+}
+
+bool critical_section::try_enter()
+{
+	return scePthreadMutexTrylock(&mutex) == 0;
+}
+
+void critical_section::leave()
+{
+	scePthreadMutexUnlock(&mutex);
+}
 
 bool render_context::create(uint32_t flags, std::function<void(int)> user_callback, std::function<void(ImGuiIO&)> load_fonts_cb)
 {
@@ -78,8 +105,14 @@ bool render_context::create(uint32_t flags, std::function<void(int)> user_callba
 
 	auto videoOutBase = liborbisutil::resolve::get_module_address<uintptr_t>("libSceVideoOut.sprx");
 
-	static auto sceVideoOutGet = (void* (*)(int))(videoOutBase + 0xA600);
+#if defined(SCE_VIDEO_OUT_GET_OFFSET) && defined(SCE_VIDEO_OUT_HANDLE_OFFSET)
+	auto sceVideoOutGet = (void*(*)(int))(videoOutBase + SCE_VIDEO_OUT_GET_OFFSET);
+	video_out_handle = *(int*)(videoOutBase + SCE_VIDEO_OUT_HANDLE_OFFSET);
+#else
+	auto sceVideoOutGet = (void*(*)(int))(videoOutBase + 0xA600);
 	video_out_handle = *(int*)(videoOutBase + 0x1CAD0);
+#endif
+
 	video_out_info = *(SceVideoOutBuffers**)sceVideoOutGet(video_out_handle);
 
 	int buffer_count = 0;
@@ -177,7 +210,7 @@ bool render_context::create(uint32_t flags, std::function<void(int)> user_callba
 	{
 		if (this->flags & HookFlipVideoOut)
 		{
-			detour_manager.create("sceVideoOutSubmitFlip", "libSceVideoOut.sprx", "sceVideoOutSubmitFlip", sceVideoOutSubmitFlip_h);
+			detour_manager.create("sceVideoOutSubmitFlip", "libSceVideoOut.sprx", "sceVideoOutSubmitFlip", sceVideoOutSubmitFlip_h, false);
 
 			sceVideoOutSubmitFlip_d = *detour_manager.get("sceVideoOutSubmitFlip");
 			sceVideoOutSubmitFlip_d.enable();
@@ -197,6 +230,8 @@ void render_context::release()
 		return;
 
 	flags |= StateDestroying;
+
+	render_thread.join();
 
 	release_hooks();
 	clear_submits();
@@ -233,6 +268,7 @@ bool render_context::begin_frame(int flip_index)
 
 	if (flags & StateDestroying)
 		return false;
+
 
 	prev_frame_index = curr_frame_index;
 	curr_frame_index = flip_index;
@@ -289,6 +325,18 @@ void render_context::update_frame()
 			ImGui::Text("FPS: %.1f", fps);
 
 			ImGui::Text("Frame Index: %d", curr_frame_index);
+
+			ImGui::BeginGroup();
+			{
+				// display video info
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.4f, 0.7f, 1.0f, 1.0f));
+				ImGui::Text("Video Info:");
+				ImGui::Text("Width: %dx%d", video_out_info->width, video_out_info->height);
+				ImGui::Text("Format Bits: 0x%X", video_out_info->formatBits);
+				ImGui::PopStyleColor();
+			}
+			ImGui::EndGroup();
+
 			ImGui::End();
 		}
 	}
@@ -313,15 +361,13 @@ void render_context::end_frame()
 	if (flags & SubmitSelf)
 	{
 		current_lw_context->writeAtEndOfPipe(sce::Gnm::kEopFlushCbDbCaches, sce::Gnm::kEventWriteDestMemory, (void*)curr_frame_context->context_label, sce::Gnm::kEventWriteSource64BitsImmediate,
-			label_free, sce::Gnm::kCacheActionNone, sce::Gnm::kCachePolicyLru);
+			label_free, sce::Gnm::kCacheActionNone, sce::Gnm::kCachePolicyBypass);
 	}
 	else
 	{
 		current_lw_context->writeAtEndOfPipeWithInterrupt(sce::Gnm::kEopFlushCbDbCaches, sce::Gnm::kEventWriteDestMemory, (void*)curr_frame_context->context_label, sce::Gnm::kEventWriteSource64BitsImmediate,
 			label_free, sce::Gnm::kCacheActionNone, sce::Gnm::kCachePolicyLru);
 	}
-
-	//current_lw_context->waitOnAddress((void*)curr_frame_context->context_label, label_free, sce::Gnm::kWaitCompareFuncEqual, 1);
 
 	current_lw_context->submit();
 
@@ -331,7 +377,7 @@ void render_context::end_frame()
 
 void render_context::stall()
 {
-	while (static_cast<uint32_t>(*curr_frame_context->context_label) != label_free)
+	while (static_cast<uint64_t>(*curr_frame_context->context_label) != label_free)
 		eop_event_queue.wait();
 }
 
@@ -375,8 +421,8 @@ bool render_context::is_initialized() const
 
 bool render_context::create_garlic_allocator(size_t size)
 {
-	garlic_memory_allocator = new liborbisutil::memory::direct_memory_allocator(size, SCE_KERNEL_WC_GARLIC);
-	if (!garlic_memory_allocator->Initialised)
+	garlic_memory_allocator = new liborbisutil::memory::direct_memory_allocator(size, SCE_KERNEL_WC_GARLIC, "render context garlic", SCE_KERNEL_MAIN_DMEM_SIZE + 500_MB);
+	if (!garlic_memory_allocator->initialised)
 	{
 		return false;
 	}
@@ -385,8 +431,8 @@ bool render_context::create_garlic_allocator(size_t size)
 }
 bool render_context::create_onion_allocator(size_t size)
 {
-	onion_memory_allocator = new liborbisutil::memory::direct_memory_allocator(size, SCE_KERNEL_WB_ONION);
-	if (!onion_memory_allocator->Initialised)
+	onion_memory_allocator = new liborbisutil::memory::direct_memory_allocator(size, SCE_KERNEL_WB_ONION, "render context onion", SCE_KERNEL_MAIN_DMEM_SIZE + 500_MB);
+	if (!onion_memory_allocator->initialised)
 	{
 		return false;
 	}
@@ -471,6 +517,7 @@ bool render_context::create_render_targets()
 bool render_context::create_event_queue()
 {
 	eop_event_queue.create("render context eop event queue");
+	sce::Gnm::addEqEvent(eop_event_queue.equeue, sce::Gnm::kEqEventGfxEop, nullptr);
 
 	return true;
 }

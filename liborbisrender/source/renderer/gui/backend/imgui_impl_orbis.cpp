@@ -126,7 +126,7 @@ static void ImGui_ImplOrbis_UpdateTouchpad()
     }
     else
     {
-         prevTouchData.id = 255;
+        prevTouchData.id = 255;
     }
 }
 
@@ -232,22 +232,6 @@ static void ImGui_ImplOrbis_UpdateGamepads()
     io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
 
     ScePadData data = bd->m_sce_pad;
-
-    //if (io.WantTextInput && pad::is_pressed(SCE_PAD_BUTTON_TRIANGLE))
-    //{
-    //    //ASSERT(threading::running && "liborbis::threading::init needs to be run for this to work.\n");
-
-    //    sceSysmoduleLoadModule(SCE_SYSMODULE_IME_DIALOG);
-
-    //    liborbisutil::keyboard::open("Test", [&](std::string data) {
-    //        std::wstring str(data.begin(), data.end());
-
-    //        printf("data : %s\n", data.data());
-
-    //        io.AddInputCharactersUTF8(data.data());
-    //        });
-
-    //}
 
     float leftStickX = liborbisutil::pad::get_left_stick_x(), leftStickY = liborbisutil::pad::get_left_stick_y();
     float rightStickX = liborbisutil::pad::get_right_stick_x(), rightStickY = liborbisutil::pad::get_right_stick_y();

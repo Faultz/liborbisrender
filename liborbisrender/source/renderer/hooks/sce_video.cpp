@@ -16,6 +16,8 @@ int render_context::sceVideoOutSubmitFlip_h(uint32_t videoOutHandle, uint32_t di
 			context->user_callback((displayBufferIndex + 1) % context->get_target_count());
 	}
 
+	context->stall();
+
 	auto res = context->sceVideoOutSubmitFlip_d.invoke<int>(videoOutHandle, displayBufferIndex, flipMode, flipArg);
 
 	if (!should_render_after_flip && (context->flags & StateDestroying) == 0)
@@ -23,8 +25,6 @@ int render_context::sceVideoOutSubmitFlip_h(uint32_t videoOutHandle, uint32_t di
 		if (context->user_callback)
 			context->user_callback((displayBufferIndex + 1) % context->get_target_count());
 	}
-
-	context->stall();
 
 	return res;
 }

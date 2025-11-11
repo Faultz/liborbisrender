@@ -69,19 +69,26 @@ struct debug_context
 	std::vector<float> frame_fps_history;
 };
 
-struct gnm_prepare_flip
+#define PM4_PREPARE_FLIP_WITH_INTERRUPT_MAGIC 0x68750781
+#define PM4_PREPARE_FLIP_MAGIC 0x68750778
+
+struct pm4_header
 {
 	uint32_t magic;
 	uint32_t unk;
-	uint64_t context_label;
-	uint64_t expected_label;
+};
+struct pm4_prepare_flip
+{
+	pm4_header header;
+	uint64_t* context_label;
+	uint32_t expected_label;
 };
 
-class eop_event
+class eqevent
 {
 public:
-	eop_event() = default;
-	~eop_event();
+	eqevent() = default;
+	~eqevent();
 	void create(const std::string& name);
 	void release();
 
@@ -89,6 +96,166 @@ public:
 
 	SceKernelEqueue equeue;
 	std::string name;
+};
+
+struct critical_section
+{
+	critical_section() = default;
+	critical_section(const std::string& name, int spin_count = 1000);
+	~critical_section();
+
+	void enter();
+	bool try_enter();
+	void leave();
+
+	ScePthreadMutex mutex;
+};
+
+template<class T, size_t size, bool block_on_full = false>
+class message_queue
+{
+public:
+	message_queue()
+	{
+		head = 0;
+		tail = 0;
+		count = 0;
+		sceKernelCreateSema(&non_empty, "mq_non_empty", 0, 0, 0, NULL);
+		if (block_on_full)
+			sceKernelCreateSema(&non_full, "mq_non_full", 0, size, 0, NULL);
+	}
+
+	~message_queue()
+	{
+		sceKernelDeleteSema(non_empty);
+		if (block_on_full)
+			sceKernelDeleteSema(non_full);
+	}
+
+	T* push(const T& t)
+	{
+		T* rv = nullptr;
+		if (block_on_full)
+			sceKernelWaitSema(non_full, 1, NULL);
+
+		crit_section.enter();
+		if (count != size)
+		{
+			if (++head == size)
+				head = 0;
+			queue[head] = t;
+			rv = &queue[head];
+			count++;
+			crit_section.leave();
+			sceKernelSignalSema(non_empty, 1);
+		}
+		else
+		{
+			crit_section.leave();
+		}
+
+		return rv;
+	}
+
+	T pop()
+	{
+		sceKernelWaitSema(non_empty, 1, NULL);
+		crit_section.enter();
+		if (++tail == size)
+			tail = 0;
+		T dest = queue[tail];
+		count--;
+		crit_section.leave();
+		if (block_on_full)
+			sceKernelSignalSema(non_full, 1);
+
+		return dest;
+	}
+
+	bool pop_wait(T& dest, unsigned int ms = -1)
+	{
+		SceKernelUseconds timeout = ms * 1000;
+		if (sceKernelWaitSema(non_empty, 1, &timeout) == 0)
+		{
+			crit_section.enter();
+			if (++tail == size)
+				tail = 0;
+			dest = queue[tail];
+			count--;
+			crit_section.leave();
+			if (block_on_full)
+				sceKernelSignalSema(non_full, 1);
+			return true;
+		}
+		return false;
+	}
+
+	bool pop_poll(T& dest)
+	{
+		if (sceKernelPollSema(non_empty, 1) == 0)
+		{
+			crit_section.enter();
+			if (++tail == size)
+				tail = 0;
+
+			dest = queue[tail];
+			count--;
+			crit_section.leave();
+			if (block_on_full)
+				sceKernelSignalSema(non_full, 1);
+			return true;
+		}
+
+		return false;
+	}
+
+	bool get_head(T& dest)
+	{
+		crit_section.enter();
+		if (count)
+		{
+			dest = queue[head];
+			crit_section.leave();
+			return true;
+		}
+
+		crit_section.leave();
+		return false;
+	}
+
+	bool get_tail(T& dest)
+	{
+		crit_section.enter();
+		if (count)
+		{
+			int tail_index = tail + 1;
+			if (tail_index == size)
+				tail_index = 0;
+
+			dest = queue[tail_index];
+			crit_section.leave();
+			return true;
+		}
+
+		crit_section.leave();
+		return false;
+	}
+
+	bool is_empty()
+	{
+		return count == 0;
+	}
+
+	bool is_not_full() 
+	{
+		return count < size;
+	}
+
+	T queue[size];
+	mutable critical_section crit_section;
+	int head, tail, count;
+	SceKernelSema non_empty;
+	SceKernelSema non_full;
 };
 
 class render_context
@@ -111,6 +278,12 @@ public:
 	const int get_target_count() const;
 	bool is_target_srgb() const;
 	bool is_initialized() const;
+
+	uint32_t get_video_handle() const { return video_out_handle; }
+
+	// game theory
+	liborbisutil::thread submit_thread;
+	liborbisutil::thread render_thread;
 
 	// per frame context
 	uint32_t prev_frame_index;
@@ -149,7 +322,7 @@ private:
 	// per instance context
 	sce::Gnmx::LightweightGfxContext* context;
 	frame_context* frame_contexts[3];
-	eop_event eop_event_queue;
+	eqevent eop_event_queue;
 	int target_count;
 
 	// user callback (supplied to the renderer, used in hooks)

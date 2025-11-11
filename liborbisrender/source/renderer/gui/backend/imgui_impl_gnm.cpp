@@ -159,7 +159,6 @@ void        ImGui_ImplGnm_RenderDrawData(ImDrawData* draw_data, sce::Gnmx::Light
 	}
 
 	ImGui_ImplGnm_SetupRenderState(dcb, draw_data);
-	dcb->setNumInstances(1);
 
 	int vtx_offset = 0;
 	int idx_offset = 0;
@@ -167,6 +166,7 @@ void        ImGui_ImplGnm_RenderDrawData(ImDrawData* draw_data, sce::Gnmx::Light
 	for (int n = 0; n < draw_data->CmdListsCount; n++)
 	{
 		const ImDrawList* cmd_list = draw_data->CmdLists[n];
+
 		for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
 		{
 			const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
@@ -199,7 +199,7 @@ void        ImGui_ImplGnm_RenderDrawData(ImDrawData* draw_data, sce::Gnmx::Light
 		vtx_offset += cmd_list->VtxBuffer.Size;
 	}
 
-	target = (target + 1) % 1;
+	target = (target + 1) % bd->renderContext->get_target_count();
 }
 
 bool		ImGui_ImplGnm_CreateFontsTexture(std::function<void(ImGuiIO& io)> loadFontsCb)
