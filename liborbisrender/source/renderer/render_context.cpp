@@ -41,37 +41,6 @@ bool eqevent::wait()
 	return true;
 }
 
-critical_section::critical_section(const std::string& name, int spin_count)
-{
-	static ScePthreadMutexattr attr;
-	if (!attr) {
-		scePthreadMutexattrInit(&attr);
-		scePthreadMutexattrSettype(&attr, SCE_PTHREAD_MUTEX_RECURSIVE);
-	}
-
-	scePthreadMutexInit(&mutex, &attr, NULL);
-}
-
-critical_section::~critical_section()
-{
-	scePthreadMutexDestroy(&mutex);
-}
-
-void critical_section::enter()
-{
-	scePthreadMutexLock(&mutex);
-}
-
-bool critical_section::try_enter()
-{
-	return scePthreadMutexTrylock(&mutex) == 0;
-}
-
-void critical_section::leave()
-{
-	scePthreadMutexUnlock(&mutex);
-}
-
 bool render_context::create(uint32_t flags, std::function<void(int)> user_callback, std::function<void(ImGuiIO&)> load_fonts_cb)
 {
 	if (is_initialized())
