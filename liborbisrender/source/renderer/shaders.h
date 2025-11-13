@@ -6,6 +6,12 @@ template<class T>
 struct base_shader
 {
 	base_shader() = default;
+	~base_shader()
+	{
+		if (sce::Gnm::isUserPaEnabled())
+			sce::Gnm::unregisterResource(&handle);
+	}
+
 
 	T* m_shader;
 
@@ -16,12 +22,14 @@ struct base_shader
 
 	sce::Gnmx::InputResourceOffsets resourceTable;
 	sce::Gnmx::InputOffsetsCache cacheTable;
+	sce::Gnm::ResourceHandle handle;
 };
 
 struct PsShader : base_shader<sce::Gnmx::PsShader>
 {
 	PsShader(void* shaderBinary, liborbisutil::memory::direct_memory_allocator* allocator);
 	PsShader(sce::Gnmx::PsShader* shader);
+
 };
 
 struct VsShader : base_shader<sce::Gnmx::VsShader>
