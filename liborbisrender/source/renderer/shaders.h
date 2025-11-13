@@ -9,7 +9,7 @@ struct base_shader
 	~base_shader()
 	{
 		if (sce::Gnm::isUserPaEnabled())
-			sce::Gnm::unregisterResource(&handle);
+			sce::Gnm::unregisterResource(handle);
 	}
 
 
