@@ -68,7 +68,6 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="source\renderer\framework\framework.cpp" />
     <ClCompile Include="source\renderer\gui\backend\imgui_impl_gnm.cpp" />
     <ClCompile Include="source\renderer\gui\backend\imgui_impl_orbis.cpp" />
     <ClCompile Include="source\renderer\gui\imgui.cpp" />
@@ -84,7 +83,6 @@
     <ClCompile Include="source\renderer\texture.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="source\renderer\framework\framework.h" />
     <ClInclude Include="source\renderer\gui\backend\imgui_impl_gnm.h" />
     <ClInclude Include="source\renderer\gui\backend\imgui_impl_orbis.h" />
     <ClInclude Include="source\renderer\gui\imconfig.h" />
@@ -110,9 +108,11 @@
   <ItemGroup>
     <WavePsslc Include="source\renderer\gui\shaders\imgui_p.pssl">
       <Embed Condition="'$(Configuration)|$(Platform)'=='Debug|ORBIS'">true</Embed>
+      <SdbCache Condition="'$(Configuration)|$(Platform)'=='Debug|ORBIS'">CacheAst</SdbCache>
     </WavePsslc>
     <WavePsslc Include="source\renderer\gui\shaders\imgui_vv.pssl">
       <Embed Condition="'$(Configuration)|$(Platform)'=='Debug|ORBIS'">true</Embed>
+      <SdbCache Condition="'$(Configuration)|$(Platform)'=='Debug|ORBIS'">CacheAst</SdbCache>
     </WavePsslc>
   </ItemGroup>
   <Import Condition="'$(ConfigurationType)' == 'Makefile' and Exists('$(VCTargetsPath)\Platforms\$(Platform)\SCE.Makefile.$(Platform).targets')" Project="$(VCTargetsPath)\Platforms\$(Platform)\SCE.Makefile.$(Platform).targets" />

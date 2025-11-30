@@ -17,7 +17,6 @@
     <ClCompile Include="source\renderer\gui\imgui_draw.cpp" />
     <ClCompile Include="source\renderer\gui\imgui_tables.cpp" />
     <ClCompile Include="source\renderer\gui\imgui_widgets.cpp" />
-    <ClCompile Include="source\renderer\framework\framework.cpp" />
     <ClCompile Include="source\renderer\texture.cpp" />
     <ClCompile Include="source\renderer\hooks\sce_kernel.cpp" />
   </ItemGroup>
@@ -42,7 +41,6 @@
     <ClInclude Include="source\renderer\gui\imstb_textedit.h" />
     <ClInclude Include="source\renderer\gui\imstb_truetype.h" />
     <ClInclude Include="source\renderer\gui\stb_image.h" />
-    <ClInclude Include="source\renderer\framework\framework.h" />
     <ClInclude Include="source\renderer\texture.h" />
   </ItemGroup>
   <ItemGroup>
