@@ -97,7 +97,7 @@ void        ImGui_ImplGnm_RenderDrawData(ImDrawData* draw_data, sce::Gnmx::Light
 	auto& vertex_buffer = m_vtx_buffer[target];
 	auto& index_buffer = m_idx_buffer[target];
 
-	auto& m_garlic = *bd->renderContext->garlic_memory_allocator;
+	auto allocator = bd->garlic_allocator;
 
 	sce::Gnmx::LightweightGfxContext* dcb = context;
 
@@ -105,11 +105,11 @@ void        ImGui_ImplGnm_RenderDrawData(ImDrawData* draw_data, sce::Gnmx::Light
 	{
 		if (vertex_buffer.m_vb != nullptr)
 		{
-			m_garlic.free(vertex_buffer.m_vb);
+			allocator->free(vertex_buffer.m_vb);
 		}
-		CombinedVertexBuffer pVB;
+		combined_vertex_buffer pVB;
 		pVB.m_size = (draw_data->TotalVtxCount + 5000) * sizeof(ImDrawVert);
-		pVB.m_vb = (ImDrawVert*)m_garlic.allocate(pVB.m_size, 4, liborbisutil::string::format("Vertex Buffers %i", target));
+		pVB.m_vb = (ImDrawVert*)allocator->allocate(pVB.m_size, 4, liborbisutil::string::format("Vertex Buffers %i", target));
 
 		printf("vertex buffer allocated %i\n", pVB.m_size);
 		vertex_buffer = pVB;
@@ -118,11 +118,11 @@ void        ImGui_ImplGnm_RenderDrawData(ImDrawData* draw_data, sce::Gnmx::Light
 	{
 		if (index_buffer.m_ib != nullptr)
 		{
-			m_garlic.free(index_buffer.m_ib);
+			allocator->free(index_buffer.m_ib);
 		}
-		CombinedIndexBuffer pIB;
+		combined_index_buffer pIB;
 		pIB.m_size = (draw_data->TotalIdxCount + 10000) * sizeof(ImDrawIdx);
-		pIB.m_ib = (ImDrawIdx*)m_garlic.allocate(pIB.m_size, 4, liborbisutil::string::format("Index Buffers %i", target));
+		pIB.m_ib = (ImDrawIdx*)allocator->allocate(pIB.m_size, 4, liborbisutil::string::format("Index Buffers %i", target));
 
 		printf("index buffer allocated %i\n", pIB.m_size);
 		index_buffer = pIB;
@@ -191,7 +191,6 @@ void        ImGui_ImplGnm_RenderDrawData(ImDrawData* draw_data, sce::Gnmx::Light
 				dcb->setUserSrtBuffer(sce::Gnm::ShaderStage::kShaderStageVs, &userData, sizeof(userData) / sizeof(uint32_t));
 				dcb->setTextures(sce::Gnm::ShaderStage::kShaderStagePs, 0, 1, &userData.m_drawData->m_texture);
 
-				/*void drawIndexInline(uint32_t indexCount, const void *indices, uint32_t indicesSizeInBytes, uint32_t vertexOffset, uint32_t instanceOffset, Gnm::DrawModifier modifier)*/
 				dcb->drawIndex(pcmd->ElemCount, index_buffer.m_ib + idx_offset + pcmd->IdxOffset);
 			}
 		}
@@ -207,7 +206,7 @@ bool		ImGui_ImplGnm_CreateFontsTexture(std::function<void(ImGuiIO& io)> loadFont
 	ImGui_ImplOrbis_Data* bd = ImGui_ImplOrbis_GetBackendData();
 	IM_ASSERT(bd != NULL && "Did you call ImGui_ImplOrbis_Init()?");
 
-	auto& m_garlic = *bd->renderContext->garlic_memory_allocator;
+	auto allocator = bd->garlic_allocator;
 
 	ImGuiIO& io = ImGui::GetIO();
 	unsigned char* pixels;
@@ -232,17 +231,17 @@ bool		ImGui_ImplGnm_CreateFontsTexture(std::function<void(ImGuiIO& io)> loadFont
 	spec.m_width = width;
 	spec.m_height = height;
 	spec.m_format = sce::Gnm::kDataFormatR8G8B8A8UnormSrgb;
-	int32_t status = g_fontTexture.init(&spec);
+	int32_t status = m_font_texture.init(&spec);
 	if (status != 0) 
 		return -1;
 
-	void* buffer = m_garlic.allocate(g_fontTexture.getSizeAlign(), "Texture Allocate");
+	void* buffer = allocator->allocate(m_font_texture.getSizeAlign(), "Texture Allocate");
 	if (buffer == nullptr)
 		return 0;
 
 	// tileSurface
 	sce::GpuAddress::TilingParameters tp;
-	int ret = tp.initFromTexture(&g_fontTexture, 0, 0);
+	int ret = tp.initFromTexture(&m_font_texture, 0, 0);
 	if (ret != SCE_OK)
 		return 0;
 
@@ -250,10 +249,10 @@ bool		ImGui_ImplGnm_CreateFontsTexture(std::function<void(ImGuiIO& io)> loadFont
 	if (ret)
 		return 0;
 
-	g_fontTexture.setBaseAddress(buffer);
+	m_font_texture.setBaseAddress(buffer);
 
 	/* switch */
-	io.Fonts->TexID = (void*)&g_fontTexture;
+	io.Fonts->TexID = (void*)&m_font_texture;
 	return true;
 }
 

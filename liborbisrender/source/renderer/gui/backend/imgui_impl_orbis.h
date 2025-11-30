@@ -30,14 +30,16 @@ struct ImGui_ImplOrbis_Osk
 
 struct ImGui_ImplOrbis_Data
 {
-    bool                        HasGamepad;
-    bool                        WantUpdateHasGamepad;
-	bool						HasTouchpadControl;
-	bool						HasMouseControl;
-	render_context*				renderContext;
-	ScePadData					m_sce_pad;
-	Frame::ImguiSrtData			userData;
-	ImGui_ImplOrbis_Osk 		osk;
+    bool											HasGamepad;
+    bool											WantUpdateHasGamepad;
+	bool											HasTouchpadControl;
+	bool											HasMouseControl;
+	render_context*									renderContext;
+	liborbisutil::memory::direct_memory_allocator*  garlic_allocator;
+	liborbisutil::memory::direct_memory_allocator*  onion_allocator;
+	ScePadData										m_sce_pad;
+	Frame::ImguiSrtData								userData;
+	ImGui_ImplOrbis_Osk 							osk;
 
     ImGui_ImplOrbis_Data() { memset(this, 0, sizeof(*this)); }
 };
@@ -45,7 +47,7 @@ struct ImGui_ImplOrbis_Data
 inline std::unique_ptr<PsShader> m_imgui_ps_shader;
 inline std::unique_ptr<VsShader> m_imgui_vs_shader;
 
-inline sce::Gnm::Texture g_fontTexture;
+inline sce::Gnm::Texture m_font_texture;
 
 inline uint64_t g_time = 0;
 

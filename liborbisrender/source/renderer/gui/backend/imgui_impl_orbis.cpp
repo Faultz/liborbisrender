@@ -35,6 +35,8 @@ bool ImGui_ImplOrbis_Init(render_context* context)
     //}
 
     bd->renderContext = context;
+	bd->garlic_allocator = context->garlic_memory_allocator;
+	bd->onion_allocator = context->onion_memory_allocator;
 
     video = context->video_out_info;
 
