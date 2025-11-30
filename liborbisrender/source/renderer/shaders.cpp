@@ -19,6 +19,11 @@ PsShader::PsShader(void* shaderBinary, liborbisutil::memory::direct_memory_alloc
 	m_shader = static_cast<sce::Gnmx::PsShader*>(header);
 	m_shader->patchShaderGpuAddress(binary);
 
+	static int shader_counter = 0;
+
+	if(sce::Gnm::isUserPaEnabled())
+		sce::Gnm::registerResource(&handle, allocator->owner_handle, m_shader->getBaseAddress(), shaderInfo.m_gpuShaderCodeSize, liborbisutil::string::format("Pixel Shader %d", shader_counter++).data(), sce::Gnm::kResourceTypeShaderBaseAddress, 0);
+
 	sce::Gnmx::generateInputResourceOffsetTable(&resourceTable, sce::Gnm::kShaderStagePs, m_shader);
 	sce::Gnmx::ConstantUpdateEngine::initializeInputsCache(&cacheTable, m_shader->getInputUsageSlotTable(), m_shader->m_common.m_numInputUsageSlots);
 }
@@ -44,6 +49,11 @@ VsShader::VsShader(void* shaderBinary, liborbisutil::memory::direct_memory_alloc
 
 	m_shader = static_cast<sce::Gnmx::VsShader*>(header);
 	m_shader->patchShaderGpuAddress(binary);
+
+	static int shader_counter = 0;
+
+	if (sce::Gnm::isUserPaEnabled())
+		sce::Gnm::registerResource(&handle, allocator->owner_handle, m_shader->getBaseAddress(), shaderInfo.m_gpuShaderCodeSize, liborbisutil::string::format("Vertex Shader %d", shader_counter++).data(), sce::Gnm::kResourceTypeShaderBaseAddress, 0);
 
 	fb = { 0 };
 	sce::Gnm::generateVsFetchShaderBuildState(&fb, (const sce::Gnm::VsStageRegisters*)&m_shader->m_vsStageRegisters, m_shader->m_numInputSemantics, nullptr, 0, fb.m_vertexBaseUsgpr, fb.m_instanceBaseUsgpr);
@@ -84,6 +94,11 @@ CsShader::CsShader(void* shaderBinary, liborbisutil::memory::direct_memory_alloc
 
 	m_shader = static_cast<sce::Gnmx::CsShader*>(header);
 	m_shader->patchShaderGpuAddress(binary);
+
+	static int shader_counter = 0;
+
+	if (sce::Gnm::isUserPaEnabled())
+		sce::Gnm::registerResource(&handle, allocator->owner_handle, m_shader->getBaseAddress(), shaderInfo.m_gpuShaderCodeSize, liborbisutil::string::format("Compute Shader %d", shader_counter++).data(), sce::Gnm::kResourceTypeShaderBaseAddress, 0);
 
 	sce::Gnmx::generateInputResourceOffsetTable(&resourceTable, sce::Gnm::kShaderStageCs, m_shader);
 	sce::Gnmx::ConstantUpdateEngine::initializeInputsCache(&cacheTable, m_shader->getInputUsageSlotTable(), m_shader->m_common.m_numInputUsageSlots);
