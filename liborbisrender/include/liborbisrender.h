@@ -15,5 +15,5 @@
 #include "../source/renderer/texture.h"
 #include "../source/renderer/shaders.h"
 #include "../source/renderer/render_context.h"
-
+#pragma comment(lib, "libSceShaderBinary.a")
 #pragma comment(lib, "liborbisutil.a")

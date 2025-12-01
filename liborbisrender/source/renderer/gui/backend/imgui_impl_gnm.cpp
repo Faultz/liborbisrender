@@ -13,8 +13,7 @@ bool        ImGui_ImplGnm_Init(std::function<void(ImGuiIO& io)> loadFontsCb)
 void        ImGui_ImplGnm_Shutdown()
 {
 	// we'll do this later
-	m_imgui_vs_shader.reset();
-	m_imgui_ps_shader.reset();
+	ImGui_ImplGnm_DestroyDeviceObjects();
 }
 
 void        ImGui_ImplGnm_NewFrame()
@@ -43,8 +42,8 @@ void ImGui_ImplGnm_SetupRenderState(sce::Gnmx::LightweightGfxContext* dcb, ImDra
 		memcpy(&userData.m_frameData->m_mvp, mvp, sizeof(mvp));
 	}
 
-	dcb->setVsShader(m_imgui_vs_shader->m_shader, &m_imgui_vs_shader->resourceTable);
-	dcb->setPsShader(m_imgui_ps_shader->m_shader, &m_imgui_ps_shader->resourceTable);
+	dcb->setVsShader(bd->shaderProgram->getVertexShader(), &bd->shaderProgram->vertex_shader.resource_table);
+	dcb->setPsShader(bd->shaderProgram->getPixelShader(), &bd->shaderProgram->pixel_shader.resource_table);
 
 	dcb->setPrimitiveType(sce::Gnm::kPrimitiveTypeTriList);
 
@@ -259,7 +258,18 @@ bool		ImGui_ImplGnm_CreateFontsTexture(std::function<void(ImGuiIO& io)> loadFont
 // Use if you want to reset your rendering device without losing ImGui state.
 void        ImGui_ImplGnm_DestroyDeviceObjects()
 {
-
+	ImGui_ImplOrbis_Data* bd = ImGui_ImplOrbis_GetBackendData();
+	IM_ASSERT(bd != NULL && "Did you call ImGui_ImplOrbis_Init()?");
+	auto allocator = bd->garlic_allocator;
+	if (m_font_texture.getBaseAddress())
+	{
+		allocator->free((void*)m_font_texture.getBaseAddress());
+		m_font_texture.setBaseAddress(nullptr);
+	}
+	if (m_shaders)
+	{
+		m_shaders.reset();
+	}
 }
 
 void        ImGui_ImplGnm_InvalidateDeviceObjects()
@@ -275,12 +285,15 @@ bool        ImGui_ImplGnm_CreateDeviceObjects()
 	auto& m_garlic = *bd->renderContext->garlic_memory_allocator;
 
 	extern char _binary_imgui_p_sb_start[], _binary_imgui_vv_sb_start[];
+	extern char _binary_imgui_p_sb_size[], _binary_imgui_vv_sb_size[];
 
-	m_imgui_ps_shader = std::make_unique<PsShader>(_binary_imgui_p_sb_start, &m_garlic);
-	m_imgui_vs_shader = std::make_unique<VsShader>(_binary_imgui_vv_sb_start, &m_garlic);
-
-	if (m_imgui_ps_shader.get() && m_imgui_vs_shader.get())
+	m_shaders = std::make_unique<shader_program>("ImGui PS Shader", 
+		_binary_imgui_vv_sb_start, (size_t)_binary_imgui_vv_sb_size,
+		_binary_imgui_p_sb_start, (size_t)_binary_imgui_p_sb_size, &m_garlic);
+	if (m_shaders)
+	{
+		bd->shaderProgram = m_shaders.get();
 		return true;
-
+	}
 	return false;
 }

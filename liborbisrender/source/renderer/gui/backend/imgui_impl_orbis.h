@@ -40,12 +40,12 @@ struct ImGui_ImplOrbis_Data
 	ScePadData										m_sce_pad;
 	Frame::ImguiSrtData								userData;
 	ImGui_ImplOrbis_Osk 							osk;
+	shader_program*									shaderProgram;
 
     ImGui_ImplOrbis_Data() { memset(this, 0, sizeof(*this)); }
 };
 
-inline std::unique_ptr<PsShader> m_imgui_ps_shader;
-inline std::unique_ptr<VsShader> m_imgui_vs_shader;
+inline std::unique_ptr<shader_program> m_shaders;
 
 inline sce::Gnm::Texture m_font_texture;
 
