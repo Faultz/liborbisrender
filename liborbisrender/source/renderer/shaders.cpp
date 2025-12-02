@@ -15,6 +15,18 @@ shader_program::shader_program(const std::string& name, const std::string vertex
 	load_pixel_shader(pixelShaderFile, allocator);
 }
 
+shader_program::~shader_program()
+{
+	if (vertex_shader.resource_handle)
+	{
+		sce::Gnm::unregisterResource(vertex_shader.resource_handle);
+	}
+	if (pixel_shader.binary)
+	{
+		sce::Gnm::unregisterResource(pixel_shader.resource_handle);
+	}
+}
+
 void shader_program::load_vertex_shader(void* shaderBinary, size_t shaderBinarySize, liborbisutil::memory::direct_memory_allocator* allocator)
 {
 	// parse shader
@@ -124,6 +136,38 @@ void shader_program::load_fetch_shader(void* shaderBinary, liborbisutil::memory:
 	vertex_shader.m_shader->applyFetchShaderModifier(shaderModifier);
 }
 
+void shader_program::load_compute_shader(void* shaderBinary, size_t shaderBinarySize, liborbisutil::memory::direct_memory_allocator* allocator)
+{
+	// parse shader
+	sce::Gnmx::ShaderInfo shaderInfo;
+	sce::Gnmx::parseShader(&shaderInfo, shaderBinary);
+
+	if (compute_shader.program.loadFromMemory(shaderBinary, shaderBinarySize) == sce::Shader::Binary::kStatusFail)
+	{
+		LOG_ERROR("Failed to load vertex shader program from memory\n");
+		return;
+	}
+
+	void* binary = allocator->allocate(shaderInfo.m_gpuShaderCodeSize, sce::Gnm::kAlignmentOfShaderInBytes, "Compute Binary Shader");
+	void* header = allocator->allocate(shaderInfo.m_csShader->computeSize(), sce::Gnm::kAlignmentOfBufferInBytes, "Compute Header Shader");
+
+	memcpy(binary, shaderInfo.m_gpuShaderCode, shaderInfo.m_gpuShaderCodeSize);
+	memcpy(header, shaderInfo.m_csShader, shaderInfo.m_csShader->computeSize());
+
+	compute_shader.m_shader = static_cast<sce::Gnmx::CsShader*>(header);
+	compute_shader.m_shader->patchShaderGpuAddress(binary);
+
+	sce::Gnmx::generateInputResourceOffsetTable(&compute_shader.resource_table, sce::Gnm::kShaderStagePs, compute_shader.m_shader);
+	sce::Gnmx::generateInputOffsetsCache(&compute_shader.offset_cache, sce::Gnm::kShaderStagePs, compute_shader.m_shader);
+
+	static int shader_idx = 0;
+	std::string resource_name = liborbisutil::string::format("%s_ComputeShader_ResourceHandle_%d", name.c_str(), shader_idx++);
+	sce::Gnm::registerResource(&compute_shader.resource_handle, allocator->owner_handle, compute_shader.m_shader->getBaseAddress(), shaderInfo.m_gpuShaderCodeSize,
+		resource_name.data(), sce::Gnm::kResourceTypeShaderBaseAddress, 0);
+
+	load_program(&compute_shader, shaderBinary, shaderBinarySize, allocator);
+}
+
 template<class T>
 void shader_program::load_program(shader<T>* shader, void* shaderBinary, size_t shaderBinarySize, liborbisutil::memory::direct_memory_allocator* allocator)
 {
@@ -171,6 +215,11 @@ void shader_program::bind(sce::Gnmx::LightweightGfxContext& ctx)
 {
 	ctx.setVsShader(vertex_shader.m_shader, &vertex_shader.resource_table);
 	ctx.setPsShader(pixel_shader.m_shader, &pixel_shader.resource_table);
+}
+
+void shader_program::compute(sce::Gnmx::LightweightGfxContext& ctx)
+{
+	ctx.setCsShader(compute_shader.m_shader, &compute_shader.resource_table);
 }
 
 sce::Shader::Binary::Buffer* shader_program::get_constant_buffer(sce::Gnm::ShaderStage stage, const char* name)

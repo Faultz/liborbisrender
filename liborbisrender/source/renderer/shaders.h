@@ -95,17 +95,20 @@ public:
 	shader_program() {};
 	shader_program(const std::string& name, void* vertexShaderBinary, size_t vertexShaderBinarySize, void* pixelShaderBinary, size_t pixelShaderBinarySize, liborbisutil::memory::direct_memory_allocator* allocator);
 	shader_program(const std::string& name, const std::string vertexShaderFile, const std::string pixelShaderFile, liborbisutil::memory::direct_memory_allocator* allocator);
+	~shader_program();
 
 	void load_vertex_shader(void* shaderBinary, size_t shaderBinarySize, liborbisutil::memory::direct_memory_allocator* allocator);
 	void load_vertex_shader(const std::string filename, liborbisutil::memory::direct_memory_allocator* allocator);
 	void load_pixel_shader(void* shaderBinary, size_t shaderBinarySize, liborbisutil::memory::direct_memory_allocator* allocator);
 	void load_pixel_shader(const std::string filename, liborbisutil::memory::direct_memory_allocator* allocator);
 	void load_fetch_shader(void* shaderBinary, liborbisutil::memory::direct_memory_allocator* allocator);
-	
+	void load_compute_shader(void* shaderBinary, size_t shaderBinarySize, liborbisutil::memory::direct_memory_allocator* allocator);
+
 	template<class T>
 	void load_program(shader<T>* shader, void* shaderBinary, size_t shaderBinarySize, liborbisutil::memory::direct_memory_allocator* allocator);
 
 	void bind(sce::Gnmx::LightweightGfxContext& ctx);
+	void compute(sce::Gnmx::LightweightGfxContext& ctx);
 
 	sce::Shader::Binary::Buffer* get_constant_buffer(sce::Gnm::ShaderStage stage, const char* name);
 	std::pair<sce::Gnm::ShaderStage, int> get_constant_buffer_slot(const char* name);
@@ -131,5 +134,6 @@ public:
 	std::string name;
 	shader<sce::Gnmx::VsShader> vertex_shader;
 	shader<sce::Gnmx::PsShader> pixel_shader;
+	shader<sce::Gnmx::CsShader> compute_shader;
 	void* fetch_shader;
 };
