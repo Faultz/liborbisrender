@@ -36,6 +36,15 @@ texture::texture(const void* data, int width, int height, sce::Gnm::DataFormat f
 
 texture::~texture()
 {
+	if (resource_handle) 
+	{
+		sce::Gnm::unregisterResource(resource_handle);
+	}
+}
+
+void texture::register_resource(std::string name)
+{
+	sce::Gnm::registerResource(&resource_handle, texture::allocator->owner_handle, getBaseAddress(), getSizeAlign().m_size, name.data(), sce::Gnm::kResourceTypeTextureBaseAddress, 0);
 }
 
 bool texture::decode_png(const std::string& file)

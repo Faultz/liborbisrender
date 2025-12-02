@@ -19,7 +19,7 @@ class render_context;
 class texture : public sce::Gnm::Texture
 {
 public:
-	texture() = default;
+	texture() {}
 	// loads texture from file or link.
 	texture(const std::string& path, bool should_use_cache = false);
 	// creates empty texture with width & height.
@@ -28,6 +28,8 @@ public:
 	~texture();
 
 	operator bool() const { return initialized; }
+
+	void register_resource(std::string name);
 
 	bool decode_png(const std::string& file);
 	bool decode_jpeg(const std::string& file);
