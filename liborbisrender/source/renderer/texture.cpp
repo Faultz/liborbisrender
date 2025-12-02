@@ -8,10 +8,14 @@
 
 texture::texture(const std::string& file, bool should_use_cache)
 {
+	std::string texture_name = fmt::format("texture_{}_{}", file, texture_count);
+
 	if(!create(file))
 	{
 		LOG_ERROR("Failed to create texture from file: %s\n", file.data());
 	}
+
+	sce::Gnm::registerResource(&resource_handle, texture::allocator->owner_handle, getBaseAddress(), getSizeAlign().m_size, texture_name.data(), sce::Gnm::kResourceTypeTextureBaseAddress, 0);
 
 	texture_count++;
 }
@@ -24,6 +28,8 @@ texture::texture(const void* data, int width, int height, sce::Gnm::DataFormat f
 	{
 		LOG_ERROR("Failed to create texture from data(%lX) with %dx%d: %s\n", data, width, height, texture_name.data());
 	}
+
+	sce::Gnm::registerResource(&resource_handle, texture::allocator->owner_handle, getBaseAddress(), getSizeAlign().m_size, texture_name.data(), sce::Gnm::kResourceTypeTextureBaseAddress, 0);
 
 	texture_count++;
 }
@@ -144,7 +150,7 @@ bool texture::decode_png(const std::string& file)
 	}
 
 	initialized = true;
-	data = getBaseAddress();
+	pixels = getBaseAddress();
 
 	return true;
 }
@@ -301,7 +307,7 @@ bool texture::decode_jpeg(const std::string& file)
 	}
 
 	initialized = true;
-	data = getBaseAddress();
+	pixels = getBaseAddress();
 
 	return true;
 }
@@ -360,7 +366,7 @@ bool texture::decode_gnf(const std::string& file)
 	format = getDataFormat();
 
 	initialized = true;
-	data = texture_buffer;
+	pixels = texture_buffer;
 
 	return true;
 }
@@ -548,7 +554,7 @@ bool texture::create_from_data(const void* data, int width, int height, sce::Gnm
 	}
 
 	initialized = true;
-	this->data = texture_buffer;
+	this->pixels = texture_buffer;
 
 	return true;
 }

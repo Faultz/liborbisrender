@@ -49,9 +49,9 @@ private:
 	sce::Gnm::DataFormat format;
 	std::string file_path;
 	bool should_use_cache = false;
-	void* data = nullptr;
+	void* pixels = nullptr;
+	sce::Gnm::ResourceHandle resource_handle;
 
 	static inline int texture_count = 0;
-	
 	static constexpr const char* texture_cache_path = "/data/liborbisrender/cache/textures";
 };
