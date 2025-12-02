@@ -20,9 +20,10 @@ class texture : public sce::Gnm::Texture
 {
 public:
 	texture() = default;
-	texture(const std::string& file, bool should_use_cache = false);
-	texture(int width, int height);
-	texture(const void* data, int width, int height);
+	// loads texture from file or link.
+	texture(const std::string& path, bool should_use_cache = false);
+	// creates empty texture with width & height.
+	texture(const void* data, int width, int height, sce::Gnm::DataFormat format = sce::Gnm::kDataFormatR8G8B8A8Unorm);
 
 	~texture();
 
@@ -38,16 +39,19 @@ public:
 	bool encode_jpeg(const std::string& file);
 	bool encode_gnf(const std::string& file);
 
-	bool create(const std::string& file);
+	bool create(const std::string& file, bool should_use_cache = false);
 	bool create(int width, int height, bool tiled = true);
-	bool create_from_data(const void* data, int width, int height, bool tiled = false);
+	bool create_from_data(const void* data, int width, int height, sce::Gnm::DataFormat format = sce::Gnm::kDataFormatR8G8B8A8Unorm, bool tiled = false);
 
 	static inline liborbisutil::memory::direct_memory_allocator* allocator;
 private:
 	bool initialized = false;
+	sce::Gnm::DataFormat format;
 	std::string file_path;
 	bool should_use_cache = false;
 	void* data = nullptr;
+
+	static inline int texture_count = 0;
 	
 	static constexpr const char* texture_cache_path = "/data/liborbisrender/cache/textures";
 };

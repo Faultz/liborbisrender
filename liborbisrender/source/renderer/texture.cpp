@@ -8,22 +8,24 @@
 
 texture::texture(const std::string& file, bool should_use_cache)
 {
-	this->should_use_cache = should_use_cache;
 	if(!create(file))
 	{
 		LOG_ERROR("Failed to create texture from file: %s\n", file.data());
 	}
+
+	texture_count++;
 }
 
-texture::texture(int width, int height)
+texture::texture(const void* data, int width, int height, sce::Gnm::DataFormat format)
 {
-	create(width, height);
-}
+	std::string texture_name = fmt::format("texture_{}_{}_{}", width, height, texture_count);
 
+	if (!create_from_data(data, width, height, format))
+	{
+		LOG_ERROR("Failed to create texture from data(%lX) with %dx%d: %s\n", data, width, height, texture_name.data());
+	}
 
-texture::texture(const void* data, int width, int height)
-{
-	create_from_data(data, width, height);
+	texture_count++;
 }
 
 texture::~texture()
@@ -69,6 +71,8 @@ bool texture::decode_png(const std::string& file)
 	textureSpec.m_format = sce::Gnm::kDataFormatR8G8B8A8UnormSrgb;
 	textureSpec.m_minGpuMode = sce::Gnm::getGpuMode();
 	ret = init(&textureSpec);
+
+	format = sce::Gnm::kDataFormatR8G8B8A8UnormSrgb;
 
 	// allocate memory for output image
 	const sce::Gnm::SizeAlign textureSizeAlign = getSizeAlign();
@@ -189,6 +193,8 @@ bool texture::decode_jpeg(const std::string& file)
 	textureSpec.m_format = sce::Gnm::kDataFormatR8G8B8A8UnormSrgb;
 	textureSpec.m_minGpuMode = sce::Gnm::getGpuMode();
 	ret = init(&textureSpec);
+
+	format = sce::Gnm::kDataFormatR8G8B8A8UnormSrgb;
 
 	// allocate memory for output image
 	const sce::Gnm::SizeAlign textureSizeAlign = getSizeAlign();
@@ -337,7 +343,6 @@ bool texture::decode_gnf(const std::string& file)
 	fs.read(reinterpret_cast<char*>(this), sizeof(*this));
 	fs.seek(sizeof(sce::Gnm::Texture) * (header.m_count - (index + 1)), 1);
 
-
 	void* texture_buffer = allocator->allocate(getSizeAlign());
 	if (!texture_buffer)
 	{
@@ -351,6 +356,8 @@ bool texture::decode_gnf(const std::string& file)
 	setBaseAddress(texture_buffer);
 
 	fs.close();
+
+	format = getDataFormat();
 
 	initialized = true;
 	data = texture_buffer;
@@ -388,7 +395,7 @@ bool texture::encode_gnf(const std::string& file)
 	return false;
 }
 
-bool texture::create(const std::string& file)
+bool texture::create(const std::string& path, bool should_use_cache)
 {
 	// make sure png dec & jpeg dec is loaded
 	if (sceSysmoduleIsLoaded(SCE_SYSMODULE_PNG_DEC) != SCE_OK)
@@ -426,11 +433,13 @@ bool texture::create(const std::string& file)
 		}
 	}
 
+	this->should_use_cache = should_use_cache;
+
 	// check if the file is a link.
 	std::smatch match;
 	std::regex link_regex("^https?://\\S+$");
 
-	if (std::regex_search(file, match, link_regex))
+	if (std::regex_search(path, match, link_regex))
 	{
 		std::string link_file = match[0].str();
 		size_t last_slash = link_file.find_last_of("/");
@@ -442,11 +451,18 @@ bool texture::create(const std::string& file)
 			if (liborbisutil::filesystem::exists(full_file_path))
 			{
 				file_path = full_file_path;
-				return decode(full_file_path);
+
+				auto result = decode(full_file_path);
+				if (!result)
+				{
+					LOG_ERROR("Failed to decode texture from cache: %s\n", full_file_path.data());
+				}
+
+				return result;
 			}
 		}
 
-		auto response = liborbisutil::http::download(file, full_file_path);
+		auto response = liborbisutil::http::download(path, full_file_path);
 
 		std::string original_file = full_file_path;
 		if (response.success)
@@ -471,59 +487,38 @@ bool texture::create(const std::string& file)
 				return decode_jpeg(full_file_path);
 			}
 
-			return decode(full_file_path);
+			auto result = decode(full_file_path);
+			if (!result)
+			{
+				LOG_ERROR("Failed to decode texture from link: %s\n", path.data());
+			}
+			 
+			file_path = full_file_path;
+			return result;
 		}
 	}
 
-	return decode(file);
+	auto result = decode(path);
+	if (!result)
+	{
+		LOG_ERROR("Failed to decode texture from file: %s\n", path.data());
+	}
+
+	file_path = path;
+
+	return result;
 }
 
-bool texture::create(int width, int height, bool tiled)
+bool texture::create_from_data(const void* data, int width, int height, sce::Gnm::DataFormat format, bool tiled)
 {
 	sce::Gnm::TextureSpec spec;
 	spec.init();
 	spec.m_textureType = sce::Gnm::kTextureType2d;
 	spec.m_width = width;
 	spec.m_height = height;
-	spec.m_format = sce::Gnm::kDataFormatR8G8B8A8Unorm;
-	int32_t status = init(&spec);
-	if (status != 0)
-		return false;
+	spec.m_format = format;
 
-	size_t size = width * height * 4;
-	void* texture_buffer = allocator->allocate(size);
-	if (!texture_buffer)
-	{
-		LOG_ERROR("Failed to allocate texture buffer\n");
-		return false;
-	}
-
-	if (tiled)
-	{
-		sce::GpuAddress::TilingParameters tp;
-		status = tp.initFromTexture(this, 0, 0);
-		if (status != SCE_OK)
-			return false;
-
-		status = sce::GpuAddress::tileSurface(getBaseAddress(), texture_buffer, &tp);
-		if (status != SCE_OK)
-			return false;
-	}
-
-	initialized = true;
-	this->data = texture_buffer;
-
-	return true;
-}
-
-bool texture::create_from_data(const void* data, int width, int height, bool tiled)
-{
-	sce::Gnm::TextureSpec spec;
-	spec.init();
-	spec.m_textureType = sce::Gnm::kTextureType2d;
-	spec.m_width = width;
-	spec.m_height = height;
-	spec.m_format = sce::Gnm::kDataFormatR8G8B8A8Unorm;
+	this->format = format;
 
 	int32_t status = init(&spec);
 	if (status != 0)
@@ -537,7 +532,8 @@ bool texture::create_from_data(const void* data, int width, int height, bool til
 		return false;
 	}
 
-	memcpy(texture_buffer, data, size);
+	if(data)
+		memcpy(texture_buffer, data, size);
 
 	if (tiled) 
 	{
