@@ -50,6 +50,19 @@ struct srv_binding_mask
 	}
 };
 
+struct shader_parameter
+{
+	std::string name;
+	sce::Shader::Binary::Buffer* buffer;
+	uint32_t slot;
+	size_t size;
+	size_t offset;
+};
+
+const uint32_t MAX_CONSTANT_BUFFERS = 14;
+const uint32_t MAX_SRV_BINDING = 64;
+const uint32_t MAX_SHADER_PARAMS = 128;
+
 template<class T>
 struct shader
 {
@@ -70,13 +83,10 @@ struct shader
 
 	uint32_t constant_buffer_mask;
 	srv_binding_mask srv_mask;
-
 	uint32_t srt_buffer_mask;
 
+	shader_parameter parameters[MAX_SHADER_PARAMS];
 	sce::Gnm::ResourceHandle resource_handle;
-
-	const uint32_t MAX_CONSTANT_BUFFERS = 14;
-	const uint32_t MAX_SRV_BINDING = 64;
 };
 
 class shader_program
