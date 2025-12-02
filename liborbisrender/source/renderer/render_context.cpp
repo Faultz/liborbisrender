@@ -36,8 +36,7 @@ bool eqevent::wait()
 {
 	SceKernelEvent ev;
 	int num;
-	const int32_t error = sceKernelWaitEqueue(equeue, &ev, 1, &num, nullptr);
-	SCE_GNM_ASSERT(error == SCE_OK);
+	sceKernelWaitEqueue(equeue, &ev, 1, &num, nullptr);
 	return true;
 }
 
@@ -78,6 +77,7 @@ bool render_context::create(uint32_t flags, std::function<void(int)> user_callba
 	auto sceVideoOutGet = (void*(*)(int))(videoOutBase + SCE_VIDEO_OUT_GET_OFFSET);
 	video_out_handle = *(int*)(videoOutBase + SCE_VIDEO_OUT_HANDLE_OFFSET);
 #else
+	// 9.00 offsets
 	auto sceVideoOutGet = (void*(*)(int))(videoOutBase + 0xA600);
 	video_out_handle = *(int*)(videoOutBase + 0x1CAD0);
 #endif
