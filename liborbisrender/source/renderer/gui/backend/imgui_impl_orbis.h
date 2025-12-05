@@ -9,6 +9,7 @@
 
 #include "../Shaders/imgui_srt_common.h"
 #include "../../shaders.h"
+#include "../../texture.h"
 
 class render_context;
 
@@ -47,7 +48,7 @@ struct ImGui_ImplOrbis_Data
 
 inline std::unique_ptr<shader_program> m_shaders;
 
-inline sce::Gnm::Texture m_font_texture;
+inline texture m_font_texture;
 
 inline uint64_t g_time = 0;
 

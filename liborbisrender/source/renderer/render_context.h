@@ -144,6 +144,8 @@ private:
 	void release_event_queue();
 	void release_contexts();
 
+	void dump();
+
 	// per instance context
 	sce::Gnmx::LightweightGfxContext* context;
 	frame_context* frame_contexts[3];
@@ -163,6 +165,8 @@ private:
 	uint64_t video_out_module_base;
 
 	std::vector<texture> textures;
+
+	inline static bool dump_dcb = false;
 
 	// detours...
 	inline static liborbisutil::hook::manager detour_manager;

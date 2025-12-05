@@ -24,6 +24,11 @@ int render_context::sceGnmSubmitAndFlipCommandBuffers_h(uint32_t count, void* dc
 			context->user_callback(displayBufferIndex);
 	}
 
+	if (render_context::dump_dcb)
+	{
+		context->dump();
+	}
+
 	context->stall();
 
 	return res;
@@ -49,6 +54,11 @@ int render_context::sceGnmSubmitAndFlipCommandBuffersForWorkload_h(int workloadI
 	{
 		if (context->user_callback)
 			context->user_callback(displayBufferIndex);
+	}
+
+	if (render_context::dump_dcb)
+	{
+		context->dump();
 	}
 
 	context->stall();

@@ -212,8 +212,8 @@ void render_context::release()
 	{
 		LOG_INFO("destroying imgui context\n");
 
-		ImGui_ImplOrbis_Shutdown();
 		ImGui_ImplGnm_Shutdown();
+		ImGui_ImplOrbis_Shutdown();
 		ImGui::DestroyContext();
 	}
 
@@ -247,10 +247,13 @@ bool render_context::begin_frame(int flip_index)
 
 	*curr_frame_context->context_label = label_active;
 
+	current_lw_context->pushMarker("Frame Start");
+
 	current_lw_context->waitUntilSafeForRendering(video_out_handle, prev_frame_index);
 
 	current_lw_context->reset();
 	current_lw_context->initializeDefaultHardwareState();
+	current_lw_context->initializeToDefaultContextState();
 
 	current_lw_context->setRenderTarget(0, curr_frame_context->target);
 	current_lw_context->setRenderTargetMask(0xF);
@@ -259,6 +262,8 @@ bool render_context::begin_frame(int flip_index)
 
 	current_lw_context->setScreenScissor(0, 0, video_out_info->width, video_out_info->height);
 	current_lw_context->setupScreenViewport(0, 0, video_out_info->width, video_out_info->height, 0.5f, 0.5f);
+
+	current_lw_context->popMarker();
 
 	return true;
 }
@@ -294,6 +299,14 @@ void render_context::update_frame()
 			ImGui::Text("FPS: %.1f", fps);
 
 			ImGui::Text("Frame Index: %d", curr_frame_index);
+
+			if (sce::Gnm::isRazorLoaded()) 
+			{
+				if (ImGui::Button("Dump DCB"))
+				{
+					dump_dcb = true;
+				}
+			}
 
 			ImGui::BeginGroup();
 			{
@@ -583,4 +596,35 @@ void render_context::release_contexts()
 			frame = nullptr;
 		}
 	}
+}
+
+void render_context::dump()
+{
+	LOG_INFO("dumping render context state...\n");
+	for (int i = 0; i < target_count; i++)
+	{
+		auto frame = frame_contexts[i];
+		LOG_INFO("Frame Context %d:\n", i);
+		LOG_INFO("  Target: %p\n", frame->target);
+		LOG_INFO("  Context Label: %p (Value: %llu)\n", frame->context_label, static_cast<uint64_t>(*frame->context_label));
+	}
+	LOG_INFO("Render Targets:\n");
+	for (int i = 0; i < get_target_count(); i++)
+	{
+		auto& target = render_targets[i];
+		LOG_INFO("  Target %d: Width: %d, Height: %d, Format: 0x%X\n", i, target.getWidth(), target.getHeight(), target.getDataFormat());
+	}
+
+	if (sce::Gnm::isRazorLoaded())
+	{
+		LOG_INFO("Razor is loaded. Dumping DCB...\n");
+
+		void* dcb_gpu_addr = (void*)current_lw_context->m_dcb.m_beginptr;
+		auto size_in_dwords = (uint32_t)((size_t)current_lw_context->m_dcb.m_cmdptr - (size_t)current_lw_context->m_dcb.m_beginptr);
+		sce::Gnm::captureImmediate("/data/gpu_capture.rzsr", 1, &dcb_gpu_addr, &size_in_dwords, nullptr, nullptr);
+	}
+
+	LOG_INFO("Render context dump complete.\n");
+
+	dump_dcb = false;
 }

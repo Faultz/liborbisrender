@@ -157,6 +157,8 @@ void        ImGui_ImplGnm_RenderDrawData(ImDrawData* draw_data, sce::Gnmx::Light
 		userData.m_frameData->srgb = bd->renderContext->target_is_srgb;
 	}
 
+	dcb->pushMarker("ImGui Render");
+
 	ImGui_ImplGnm_SetupRenderState(dcb, draw_data);
 
 	int vtx_offset = 0;
@@ -197,6 +199,8 @@ void        ImGui_ImplGnm_RenderDrawData(ImDrawData* draw_data, sce::Gnmx::Light
 		vtx_offset += cmd_list->VtxBuffer.Size;
 	}
 
+	dcb->popMarker();
+
 	target = (target + 1) % bd->renderContext->get_target_count();
 }
 
@@ -223,6 +227,7 @@ bool		ImGui_ImplGnm_CreateFontsTexture(std::function<void(ImGuiIO& io)> loadFont
 
 	io.FontDefault = io.Fonts->Fonts[0];
 	io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
+	m_font_texture = texture();
 
 	sce::Gnm::TextureSpec spec;
 	spec.init();
@@ -249,6 +254,7 @@ bool		ImGui_ImplGnm_CreateFontsTexture(std::function<void(ImGuiIO& io)> loadFont
 		return 0;
 
 	m_font_texture.setBaseAddress(buffer);
+	m_font_texture.register_resource("ImGui Font Texture");
 
 	/* switch */
 	io.Fonts->TexID = (void*)&m_font_texture;

@@ -28,11 +28,9 @@
     <ClInclude Include="source\renderer\gui\shaders\graphics\matrix4unaligned.h" />
     <ClInclude Include="source\renderer\gui\shaders\graphics\matrix4x3unaligned.h" />
     <ClInclude Include="source\renderer\gui\shaders\graphics\shader_common.h" />
-    <ClInclude Include="source\renderer\gui\shaders\graphics\shader_material_common.h" />
     <ClInclude Include="source\renderer\gui\shaders\graphics\vector2unaligned.h" />
     <ClInclude Include="source\renderer\gui\shaders\graphics\vector3unaligned.h" />
     <ClInclude Include="source\renderer\gui\shaders\graphics\vector4unaligned.h" />
-    <ClInclude Include="source\renderer\gui\shaders\graphics\vertex_define.h" />
     <ClInclude Include="source\renderer\gui\shaders\imgui_srt_common.h" />
     <ClInclude Include="source\renderer\gui\imconfig.h" />
     <ClInclude Include="source\renderer\gui\imgui.h" />

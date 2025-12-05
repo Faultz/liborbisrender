@@ -26,5 +26,10 @@ int render_context::sceVideoOutSubmitFlip_h(uint32_t videoOutHandle, uint32_t di
 			context->user_callback((displayBufferIndex + 1) % context->get_target_count());
 	}
 
+	if (render_context::dump_dcb)
+	{
+		context->dump();
+	}
+
 	return res;
 }
