@@ -65,6 +65,9 @@
     <ClCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);</PreprocessorDefinitions>
       <OptimizationLevel>Level2</OptimizationLevel>
+      <CppLanguageStd>Cpp17</CppLanguageStd>
+      <AdditionalIncludeDirectories>..\dependencies\StubMaker\include;..\dependencies\fmtlib\fmtlib;..\dependencies\minhook\libMinhook;..\dependencies\liborbisutil\liborbisutil\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CppExceptions>true</CppExceptions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
