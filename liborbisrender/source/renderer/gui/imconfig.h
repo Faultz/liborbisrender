@@ -15,8 +15,10 @@
 
 #include <assert.h>
 
+#ifdef _DEBUG
 #define IM_ASSERT(test) ((test) ? (void)0 \
     : (void)printf("Assertion failed: %s, file %s, line %d\n", #test, __FILE__, __LINE__), (void)assert(test))
+#endif
 
 //#define IM_ASSERT(_EXPR)  ASSERT(_EXPR)
 //---- Define assertion handler. Defaults to calling assert().
