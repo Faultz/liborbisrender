@@ -9,6 +9,11 @@ int render_context::sceVideoOutSubmitFlip_h(uint32_t videoOutHandle, uint32_t di
 	if (context->flags & UnlockFps)
 		sceVideoOutSetFlipRate(videoOutHandle, 0);
 
+	if (context->flags & FlipModeVSync)
+	{
+		flipMode = SCE_VIDEO_OUT_FLIP_MODE_VSYNC;
+	}
+
 	auto should_render_after_flip = context->flags & RenderBeforeFlip;
 	if (should_render_after_flip && (context->flags & StateDestroying) == 0)
 	{

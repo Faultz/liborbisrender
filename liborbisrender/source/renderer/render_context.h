@@ -53,6 +53,8 @@ enum render_flags
 	StateRunning = 1 << 7,
 	StateDestroying = 1 << 8,
 
+	FlipModeVSync = 1 << 9,
+
 	UnlockFps = 1 << 10
 };
 

@@ -9,6 +9,11 @@ int render_context::sceGnmSubmitAndFlipCommandBuffers_h(uint32_t count, void* dc
 	if (context->flags & UnlockFps)
 		sceVideoOutSetFlipRate(context->video_out_handle, 0);
 
+	if (context->flags & FlipModeVSync)
+	{
+		flipMode = SCE_VIDEO_OUT_FLIP_MODE_VSYNC;
+	}
+
 	auto should_render_after_flip = context->flags & RenderBeforeFlip;
 	if (should_render_after_flip && (context->flags & StateDestroying) == 0)
 	{
@@ -40,6 +45,11 @@ int render_context::sceGnmSubmitAndFlipCommandBuffersForWorkload_h(int workloadI
 
 	if (context->flags & UnlockFps)
 		sceVideoOutSetFlipRate(context->video_out_handle, 0);
+
+	if (context->flags & FlipModeVSync)
+	{
+		flipMode = SCE_VIDEO_OUT_FLIP_MODE_VSYNC;
+	}
 
 	auto should_render_after_flip = context->flags & RenderBeforeFlip;
 	if (should_render_after_flip && (context->flags & StateDestroying) == 0)
