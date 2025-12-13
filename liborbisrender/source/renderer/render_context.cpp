@@ -1,5 +1,13 @@
 #include "render_context.h"
 
+const constexpr liborbisutil::memory::pattern<13> sceVideoOutGet_sig{
+	"E8 {????????} 48 85 C0 74 ?? 49 89 C6"
+};
+
+const constexpr liborbisutil::memory::pattern<9> video_out_handle_sig{
+	"8B 3D {????????} 45 31 FF"
+};
+
 void* allocMem(size_t size, void* userData)
 {
 	return render_context::onion_memory_allocator->allocate(size, 8, "");
@@ -71,6 +79,24 @@ bool render_context::create(uint32_t flags, std::function<void(int)> user_callba
 	release_label = reinterpret_cast<volatile uint64_t*>(garlic_memory_allocator->allocate(sizeof(uint64_t), 8, "release label"));
 	*release_label = label_active;
 
+	auto sceVideoOutGet_addr = sceVideoOutGet_sig.sigscan("sceVideoOutGet", "libSceVideoOut.sprx");
+	if (!sceVideoOutGet_addr)
+	{
+		LOG_ERROR("failed to find sceVideoOutGet address\n");
+		return false;
+	}
+
+	sceVideoOutGet_addr = liborbisutil::memory::read_offset(sceVideoOutGet_addr);
+
+	auto video_out_handle_addr = video_out_handle_sig.sigscan("video_out_handle", "libSceVideoOut.sprx");
+	if (!video_out_handle_addr)
+	{
+		LOG_ERROR("failed to find video out handle address\n");
+		return false;
+	}
+
+	video_out_handle_addr = liborbisutil::memory::read_offset(video_out_handle_addr);
+
 	auto videoOutBase = liborbisutil::resolve::get_module_address<uintptr_t>("libSceVideoOut.sprx");
 
 #if defined(SCE_VIDEO_OUT_GET_OFFSET) && defined(SCE_VIDEO_OUT_HANDLE_OFFSET)
@@ -78,8 +104,8 @@ bool render_context::create(uint32_t flags, std::function<void(int)> user_callba
 	video_out_handle = *(int*)(videoOutBase + SCE_VIDEO_OUT_HANDLE_OFFSET);
 #else
 	// 9.00 offsets
-	auto sceVideoOutGet = (void*(*)(int))(videoOutBase + 0xA600);
-	video_out_handle = *(int*)(videoOutBase + 0x1CAD0);
+	auto sceVideoOutGet = (void*(*)(int))sceVideoOutGet_addr;
+	video_out_handle = *(int*)video_out_handle_addr;
 #endif
 
 	video_out_info = *(SceVideoOutBuffers**)sceVideoOutGet(video_out_handle);
