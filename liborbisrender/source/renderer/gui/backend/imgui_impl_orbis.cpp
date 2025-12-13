@@ -272,7 +272,6 @@ static void ImGui_ImplOrbis_UpdateGamepads()
 void ImGui_ImplOrbis_NewFrame()
 {
     ImGuiIO& io = ImGui::GetIO();
-    ImGui_ImplOrbis_Data* bd = ImGui_ImplOrbis_GetBackendData();
     IM_ASSERT(bd != NULL && "Did you call ImGui_ImplOrbis_Init()?");
 
     // Setup display size (every frame to accommodate for window resizing)
