@@ -19,7 +19,12 @@ class render_context;
 class texture : public sce::Gnm::Texture
 {
 public:
-	texture() {}
+	texture() :
+		initialized(false),
+		should_use_cache(false),
+		pixels(nullptr),
+		resource_handle(0)
+	{ }
 	// loads texture from file or link.
 	texture(const std::string& path, bool should_use_cache = false);
 	// creates empty texture with width & height.

@@ -55,6 +55,8 @@
       <AdditionalIncludeDirectories>..\dependencies\StubMaker\include;..\dependencies\fmtlib\fmtlib;..\dependencies\minhook\libMinhook;..\dependencies\liborbisutil\liborbisutil\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CppLanguageStd>Cpp17</CppLanguageStd>
       <CppExceptions>true</CppExceptions>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <AdditionalOptions>-fPIC %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>

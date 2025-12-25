@@ -97,8 +97,6 @@ bool render_context::create(uint32_t flags, std::function<void(int)> user_callba
 
 	video_out_handle_addr = liborbisutil::memory::read_offset(video_out_handle_addr);
 
-	auto videoOutBase = liborbisutil::resolve::get_module_address<uintptr_t>("libSceVideoOut.sprx");
-
 #if defined(SCE_VIDEO_OUT_GET_OFFSET) && defined(SCE_VIDEO_OUT_HANDLE_OFFSET)
 	auto sceVideoOutGet = (void*(*)(int))(videoOutBase + SCE_VIDEO_OUT_GET_OFFSET);
 	video_out_handle = *(int*)(videoOutBase + SCE_VIDEO_OUT_HANDLE_OFFSET);
