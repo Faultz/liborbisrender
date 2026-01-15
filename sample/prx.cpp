@@ -3,17 +3,24 @@
 #include <png_dec.h>
 
 #include <audioout.h>
+#pragma comment(lib, "liborbisrender.a")
 
 // We need to provide an export to force the expected stub library to be generated
 __declspec (dllexport) void dummy()
 {
 }
 
+extern "C" {
+	__declspec(dllexport) void* _ZTINSt8ios_base7failureE = nullptr;
+	__declspec(dllexport) void* _ZTVSt5ctypeIcE = nullptr;
+	__declspec(dllexport) void* _ZTISt8bad_cast = nullptr;
+}
+
 extern "C"
 {
 	int __cdecl module_start(size_t argc, const void* args)
 	{
-		liborbisutil::thread t([]() {
+		liborbisutil::thread t([](void*) {
 			auto res = MH_Initialize();
 			if (res != MH_OK)
 			{
@@ -22,16 +29,15 @@ extern "C"
 			}
 
 			liborbisutil::http::initialize();
-
 			liborbisutil::patcher::create("mutex on list patch", "libkernel.sprx", 0x7850, { 0xC3 }, true);
 
 			auto& context = *render_context::get_instance();
 
 			context.create(HookFlip | FunctionImGui | FunctionRenderDebug | UnlockFps, [&](int flipIndex) {
 
-				if(context.begin_scene(flipIndex))
+				if(context.begin_frame(flipIndex))
 				{
-					context.update_scene();
+					context.update_frame();
 
 					// do render...
 					ImGui::Begin("Hello, world!");
@@ -45,7 +51,7 @@ extern "C"
 
 					ImGui::End();
 
-					context.end_scene();
+					context.end_frame();
 				}
 
 				}, [](ImGuiIO& io) {
@@ -74,7 +80,7 @@ extern "C"
 
 	int __cdecl module_stop(size_t argc, const void* args)
 	{
-		liborbisutil::thread t([]() {
+		liborbisutil::thread t([](void*) {
 			auto& context = *render_context::get_instance();
 			context.release();
 
