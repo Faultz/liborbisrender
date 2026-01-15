@@ -148,5 +148,4 @@ liborbisrender/
 ```
 
 ## License
-
-See the LICENSE file for details.
+This project is provided as-is for educational and development purposes. Ensure compliance with all applicable laws and platform terms of service when using this software.
