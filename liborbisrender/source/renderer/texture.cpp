@@ -10,7 +10,7 @@ texture::texture(const std::string& file, bool should_use_cache)
 {
 	std::string texture_name = fmt::format("texture_{}_{}", file, texture_count);
 
-	if(!create(file))
+	if(!create(file, should_use_cache))
 	{
 		LOG_ERROR("Failed to create texture from file: %s\n", file.data());
 	}
@@ -441,7 +441,7 @@ bool texture::create(const std::string& path, bool should_use_cache)
 	if (!liborbisutil::filesystem::exists(texture_cache_path))
 	{
 		// create texture_cache_path.
-		if (!liborbisutil::filesystem::create_directory(texture_cache_path))
+		if (!liborbisutil::filesystem::create_directory(texture_cache_path, true))
 		{
 			LOG_ERROR("Failed to create texture cache directory\n");
 			return false;
