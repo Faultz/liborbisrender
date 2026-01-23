@@ -427,9 +427,21 @@ bool render_context::is_initialized() const
 
 bool render_context::create_garlic_allocator(size_t size)
 {
+
 	garlic_memory_allocator = new liborbisutil::memory::direct_memory_allocator(size, SCE_KERNEL_WC_GARLIC, "render context garlic", SCE_KERNEL_MAIN_DMEM_SIZE + 500_MB);
 	if (!garlic_memory_allocator->initialised)
 	{
+		auto buffer = liborbisutil::resolve::get_module_address<off_t*>("direct-memory-plugin.sprx", "garlic_address");
+		if (buffer)
+		{
+			garlic_memory_allocator = new liborbisutil::memory::direct_memory_allocator(reinterpret_cast<void*>(*buffer), size, SCE_KERNEL_WC_GARLIC, "render context garlic");
+			if (garlic_memory_allocator->initialised)
+			{
+				LOG_DEBUG("using existing garlic allocator from address\n");
+				return true;
+			}
+		}
+		
 		return false;
 	}
 
@@ -437,9 +449,21 @@ bool render_context::create_garlic_allocator(size_t size)
 }
 bool render_context::create_onion_allocator(size_t size)
 {
+
 	onion_memory_allocator = new liborbisutil::memory::direct_memory_allocator(size, SCE_KERNEL_WB_ONION, "render context onion", SCE_KERNEL_MAIN_DMEM_SIZE + 500_MB);
 	if (!onion_memory_allocator->initialised)
 	{
+		auto buffer = liborbisutil::resolve::get_module_address<off_t*>("direct-memory-plugin.sprx", "onion_address");
+		if (buffer)
+		{
+			onion_memory_allocator = new liborbisutil::memory::direct_memory_allocator(reinterpret_cast<void*>(*buffer), size, SCE_KERNEL_WB_ONION, "render context onion");
+			if (onion_memory_allocator->initialised)
+			{
+				LOG_DEBUG("using existing onion allocator from address\n");
+				return true;
+			}
+		}
+
 		return false;
 	}
 	return true;
@@ -568,9 +592,8 @@ void render_context::release_garlic_allocator()
 {
 	if (garlic_memory_allocator)
 	{
-		delete garlic_memory_allocator;
-		garlic_memory_allocator = nullptr;
-
+			delete garlic_memory_allocator;
+			garlic_memory_allocator = nullptr;
 		LOG_DEBUG("garlic memory allocator released\n");
 	}
 }
@@ -578,8 +601,8 @@ void render_context::release_onion_allocator()
 {
 	if (onion_memory_allocator)
 	{
-		delete onion_memory_allocator;
-		onion_memory_allocator = nullptr;
+			delete onion_memory_allocator;
+			onion_memory_allocator = nullptr;
 
 		LOG_DEBUG("onion memory allocator released\n");
 	}
