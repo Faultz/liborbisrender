@@ -219,9 +219,16 @@ bool		ImGui_ImplGnm_CreateFontsTexture(std::function<void(ImGuiIO& io)> loadFont
 		loadFontsCb(io);
 	else
 	{
+		bool fontsLoaded = false;
 		for (auto& file : liborbisutil::directory_iterator("/data/ImGui Fonts/"))
 		{
 			io.Fonts->AddFontFromFileTTF(file.data(), 15.0f);
+			fontsLoaded = true;
+		}
+
+		if (!fontsLoaded)
+		{
+			io.Fonts->AddFontDefault();
 		}
 	}
 
