@@ -535,7 +535,6 @@ bool render_context::create_render_targets()
 		spec.m_minGpuMode = sce::Gnm::getGpuMode();
 		spec.m_numSamples = sce::Gnm::kNumSamples1;
 		spec.m_numFragments = sce::Gnm::kNumFragments1;
-		spec.m_colorTileModeHint = sce::Gnm::TileMode::kTileModeDisplay_2dThin;
 		rt.init(&spec);
 		rt.setBaseAddress(buffer);
 
