@@ -31,30 +31,25 @@ extern "C"
 			liborbisutil::http::initialize();
 			liborbisutil::patcher::create("mutex on list patch", "libkernel.sprx", 0x7850, { 0xC3 }, true);
 
-			auto& context = *render_context::get_instance();
+		render_context::create(HookFlip | FunctionImGui | FunctionRenderDebug | UnlockFps, [](int flipIndex) {
 
-			context.create(HookFlip | FunctionImGui | FunctionRenderDebug | UnlockFps, [&](int flipIndex) {
+			if(render_context::begin_frame(flipIndex))
+			{
+				render_context::update_frame();
 
-				if(context.begin_frame(flipIndex))
+				// do render...
+				ImGui::Begin("Hello, world!");
+				ImGui::Text("This is some useful text.");
+
+				static texture tex("https://cataas.com/cat");
+				if (tex)
 				{
-					context.update_frame();
-
-					// do render...
-					ImGui::Begin("Hello, world!");
-					ImGui::Text("This is some useful text.");
-
-					static texture tex("https://cataas.com/cat");
-					if (tex)
-					{
-						ImGui::Image(&tex, { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y });
-					}
-
-					ImGui::End();
-
-					context.end_frame();
+					ImGui::Image(&tex, { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y });
 				}
 
-				}, [](ImGuiIO& io) {
+				ImGui::End();
+
+				render_context::end_frame();
 
 					for (auto file : liborbisutil::directory_iterator("/data/ImGui Fonts"))
 					{
@@ -81,8 +76,7 @@ extern "C"
 	int __cdecl module_stop(size_t argc, const void* args)
 	{
 		liborbisutil::thread t([](void*) {
-			auto& context = *render_context::get_instance();
-			context.release();
+			render_context::release();
 
 			liborbisutil::pad::finalize();
 			liborbisutil::http::finalize();

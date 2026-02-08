@@ -54,7 +54,7 @@ inline uint64_t g_time = 0;
 
 ImGui_ImplOrbis_Data* ImGui_ImplOrbis_GetBackendData();
 
-IMGUI_IMPL_API bool     ImGui_ImplOrbis_Init(render_context* context);
+IMGUI_IMPL_API bool     ImGui_ImplOrbis_Init();
 IMGUI_IMPL_API void     ImGui_ImplOrbis_Shutdown();
 IMGUI_IMPL_API void     ImGui_ImplOrbis_NewFrame();
 IMGUI_IMPL_API bool     ImGui_ImplOrbis_HandleEvent();

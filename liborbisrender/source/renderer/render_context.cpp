@@ -55,11 +55,8 @@ bool render_context::create(uint32_t flags, std::function<void(int)> user_callba
 		return false;
 	}
 
-	memset(this, 0, sizeof(render_context));
-
-	this->instance_obj = this;
-	this->flags = flags;
-	this->user_callback = user_callback;
+	render_context::flags = flags;
+	render_context::user_callback = user_callback;
 
 	if (!create_garlic_allocator(25_MB))
 	{
@@ -98,15 +95,22 @@ bool render_context::create(uint32_t flags, std::function<void(int)> user_callba
 	video_out_handle_addr = liborbisutil::memory::read_offset(video_out_handle_addr);
 
 #if defined(SCE_VIDEO_OUT_GET_OFFSET) && defined(SCE_VIDEO_OUT_HANDLE_OFFSET)
+	auto videoOutBase = resolve::get_module_address("libSceVideoOut.sprx");
 	auto sceVideoOutGet = (void*(*)(int))(videoOutBase + SCE_VIDEO_OUT_GET_OFFSET);
 	video_out_handle = *(int*)(videoOutBase + SCE_VIDEO_OUT_HANDLE_OFFSET);
 #else
-	// 9.00 offsets
 	auto sceVideoOutGet = (void*(*)(int))sceVideoOutGet_addr;
 	video_out_handle = *(int*)video_out_handle_addr;
 #endif
 
-	video_out_info = *(SceVideoOutBuffers**)sceVideoOutGet(video_out_handle);
+	auto video_out = sceVideoOutGet(video_out_handle);
+	if(!video_out)
+	{
+		LOG_ERROR("failed to get video out info\n");
+		return false;
+	}
+
+	video_out_info = *(SceVideoOutBuffers**)video_out;
 
 	int buffer_count = 0;
 	while (true) {
@@ -117,7 +121,7 @@ bool render_context::create(uint32_t flags, std::function<void(int)> user_callba
 		buffer_count++;
 	}
 
-	this->target_count = buffer_count;
+	target_count = buffer_count;
 
 	if (!create_device())
 	{
@@ -139,12 +143,12 @@ bool render_context::create(uint32_t flags, std::function<void(int)> user_callba
 		ImGui::SetAllocatorFunctions(allocMem, freeMem, nullptr);
 
 		ImGui::CreateContext();
-		ImGui_ImplOrbis_Init(this);
+		ImGui_ImplOrbis_Init();
 
 		ImGui_ImplGnm_Init(load_fonts_cb);
 	}
 
-	this->flags |= StateRunning;
+	render_context::flags |= StateRunning;
 
 	const char* gnm_driver_libraries[] = {
 		"libSceGnmDriverForNeoMode.sprx",
@@ -182,7 +186,7 @@ bool render_context::create(uint32_t flags, std::function<void(int)> user_callba
 
 	if (is_gnm_driver_loaded)
 	{
-		if (this->flags & HookFlip)
+		if (render_context::flags & HookFlip)
 		{
 			detour_manager.create("sceGnmSubmitAndFlipCommandBuffers", gnm_driver_library, "sceGnmSubmitAndFlipCommandBuffers", sceGnmSubmitAndFlipCommandBuffers_h);
 
@@ -190,7 +194,7 @@ bool render_context::create(uint32_t flags, std::function<void(int)> user_callba
 			sceGnmSubmitAndFlipCommandBuffer_d.enable();
 		}
 
-		if (this->flags & HookFlipForWorkload)
+		if (render_context::flags & HookFlipForWorkload)
 		{
 			detour_manager.create("sceGnmSubmitAndFlipCommandBuffersForWorkload", gnm_driver_library, "sceGnmSubmitAndFlipCommandBuffersForWorkload", sceGnmSubmitAndFlipCommandBuffersForWorkload_h);
 
@@ -201,7 +205,7 @@ bool render_context::create(uint32_t flags, std::function<void(int)> user_callba
 
 	if (is_sce_video_out_loaded)
 	{
-		if (this->flags & HookFlipVideoOut)
+		if (render_context::flags & HookFlipVideoOut)
 		{
 			detour_manager.create("sceVideoOutSubmitFlip", "libSceVideoOut.sprx", "sceVideoOutSubmitFlip", sceVideoOutSubmitFlip_h, false);
 
@@ -404,23 +408,15 @@ texture render_context::create_texture(const std::string& file, bool should_use_
 	return tex;
 }
 
-render_context* render_context::get_instance()
-{
-	if(render_context::instance_obj)
-		return render_context::instance_obj;
-
-	static render_context instance_obj;
-	return &instance_obj;
-}
-const int render_context::get_target_count() const
+const int render_context::get_target_count()
 {
 	return target_count;
 }
-bool render_context::is_target_srgb() const
+bool render_context::is_target_srgb()
 {
 	return target_is_srgb;
 }
-bool render_context::is_initialized() const
+bool render_context::is_initialized()
 {
 	return flags & StateRunning;
 }

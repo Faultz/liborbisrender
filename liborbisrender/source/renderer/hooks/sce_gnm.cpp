@@ -4,74 +4,70 @@
 
 int render_context::sceGnmSubmitAndFlipCommandBuffers_h(uint32_t count, void* dcbGpuAddrs[], uint32_t* dcbSizesInBytes, void* ccbGpuAddrs[], uint32_t* ccbSizesInBytes, uint32_t videoOutHandle, uint32_t displayBufferIndex, uint32_t flipMode, int64_t flipArg)
 {
-	auto context = get_instance();
+	if (flags & UnlockFps)
+		sceVideoOutSetFlipRate(video_out_handle, 0);
 
-	if (context->flags & UnlockFps)
-		sceVideoOutSetFlipRate(context->video_out_handle, 0);
-
-	if (context->flags & FlipModeVSync)
+	if (flags & FlipModeVSync)
 	{
 		flipMode = SCE_VIDEO_OUT_FLIP_MODE_VSYNC;
 	}
 
-	auto should_render_after_flip = context->flags & RenderBeforeFlip;
-	if (should_render_after_flip && (context->flags & StateDestroying) == 0)
+	auto should_render_after_flip = flags & RenderBeforeFlip;
+	if (should_render_after_flip && (flags & StateDestroying) == 0)
 	{
-		if (context->user_callback)
-			context->user_callback(displayBufferIndex);
+		if (user_callback)
+			user_callback(displayBufferIndex);
 	}
 
-	auto res = context->sceGnmSubmitAndFlipCommandBuffer_d.invoke<int>(count, dcbGpuAddrs, dcbSizesInBytes, ccbGpuAddrs, ccbSizesInBytes, videoOutHandle, displayBufferIndex, flipMode, flipArg);
+	auto res = sceGnmSubmitAndFlipCommandBuffer_d.invoke<int>(count, dcbGpuAddrs, dcbSizesInBytes, ccbGpuAddrs, ccbSizesInBytes, videoOutHandle, displayBufferIndex, flipMode, flipArg);
 
-	if (!should_render_after_flip && (context->flags & StateDestroying) == 0)
+	if (!should_render_after_flip && (flags & StateDestroying) == 0)
 	{
-		if (context->user_callback)
-			context->user_callback(displayBufferIndex);
+		if (user_callback)
+			user_callback(displayBufferIndex);
 	}
 
 	if (render_context::dump_dcb)
 	{
-		context->dump();
+		dump();
 	}
 
-	context->stall();
+	stall();
 
 	return res;
 }
 
 int render_context::sceGnmSubmitAndFlipCommandBuffersForWorkload_h(int workloadId, uint32_t count, void* dcbGpuAddrs[], uint32_t* dcbSizesInBytes, void* ccbGpuAddrs[], uint32_t* ccbSizesInBytes, uint32_t videoOutHandle, uint32_t displayBufferIndex, uint32_t flipMode, int64_t flipArg)
 {
-	auto context = get_instance();
+	if (flags & UnlockFps)
+		sceVideoOutSetFlipRate(video_out_handle, 0);
 
-	if (context->flags & UnlockFps)
-		sceVideoOutSetFlipRate(context->video_out_handle, 0);
-
-	if (context->flags & FlipModeVSync)
+	if (flags & FlipModeVSync)
 	{
 		flipMode = SCE_VIDEO_OUT_FLIP_MODE_VSYNC;
 	}
 
-	auto should_render_after_flip = context->flags & RenderBeforeFlip;
-	if (should_render_after_flip && (context->flags & StateDestroying) == 0)
+	auto should_render_after_flip = flags & RenderBeforeFlip;
+	if (should_render_after_flip && (flags & StateDestroying) == 0)
 	{
-		if (context->user_callback)
-			context->user_callback(displayBufferIndex);
+		if (user_callback)
+			user_callback(displayBufferIndex);
 	}
 
-	auto res = context->sceGnmSubmitAndFlipCommandBufferForWorkload_d.invoke<int>(workloadId, count, dcbGpuAddrs, dcbSizesInBytes, ccbGpuAddrs, ccbSizesInBytes, videoOutHandle, displayBufferIndex, flipMode, flipArg);
+	auto res = sceGnmSubmitAndFlipCommandBufferForWorkload_d.invoke<int>(workloadId, count, dcbGpuAddrs, dcbSizesInBytes, ccbGpuAddrs, ccbSizesInBytes, videoOutHandle, displayBufferIndex, flipMode, flipArg);
 
-	if (!should_render_after_flip && (context->flags & StateDestroying) == 0)
+	if (!should_render_after_flip && (flags & StateDestroying) == 0)
 	{
-		if (context->user_callback)
-			context->user_callback(displayBufferIndex);
+		if (user_callback)
+			user_callback(displayBufferIndex);
 	}
 
 	if (render_context::dump_dcb)
 	{
-		context->dump();
+		dump();
 	}
 
-	context->stall();
+	stall();
 
 	return res;
 }

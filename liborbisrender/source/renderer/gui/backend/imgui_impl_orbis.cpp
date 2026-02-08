@@ -15,7 +15,7 @@ ImGui_ImplOrbis_Data* ImGui_ImplOrbis_GetBackendData()
     return ImGui::GetCurrentContext() ? (ImGui_ImplOrbis_Data*)ImGui::GetIO().BackendPlatformUserData : NULL;
 }
 
-bool ImGui_ImplOrbis_Init(render_context* context)
+bool ImGui_ImplOrbis_Init()
 {
     ImGuiIO& io = ImGui::GetIO();
     IM_ASSERT(io.BackendPlatformUserData == NULL && "Already initialized a platform backend!");
@@ -34,11 +34,11 @@ bool ImGui_ImplOrbis_Init(render_context* context)
     //    io.BackendFlags |= (ImGuiBackendFlags_HasMouseCursors | ImGuiBackendFlags_HasSetMousePos);
     //}
 
-    bd->renderContext = context;
-	bd->garlic_allocator = context->garlic_memory_allocator;
-	bd->onion_allocator = context->onion_memory_allocator;
+    bd->renderContext = nullptr;
+	bd->garlic_allocator = render_context::garlic_memory_allocator;
+	bd->onion_allocator = render_context::onion_memory_allocator;
 
-    video = context->video_out_info;
+    video = render_context::video_out_info;
 
     bd->WantUpdateHasGamepad = true;
     bd->HasMouseControl = false;

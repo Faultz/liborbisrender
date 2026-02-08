@@ -88,99 +88,100 @@ public:
 class render_context
 {
 public:
-	bool create(uint32_t flags, std::function<void(int)> user_callback = nullptr, std::function<void(ImGuiIO&)> load_fonts_cb = nullptr);
-	void release();
+	// Delete constructors to prevent instantiation
+	render_context() = delete;
+	render_context(const render_context&) = delete;
+	render_context& operator=(const render_context&) = delete;
 
-	bool begin_frame(int flip_index);
-	void update_frame();
-	void end_frame();
+	static bool create(uint32_t flags, std::function<void(int)> user_callback = nullptr, std::function<void(ImGuiIO&)> load_fonts_cb = nullptr);
+	static void release();
 
-	void stall();
-	void advance_frame();
+	static bool begin_frame(int flip_index);
+	static void update_frame();
+	static void end_frame();
 
-	texture create_texture(const std::string& file, bool should_use_cache = false);
+	static void stall();
+	static void advance_frame();
 
-	static render_context* get_instance();
+	static texture create_texture(const std::string& file, bool should_use_cache = false);
 
-	const int get_target_count() const;
-	bool is_target_srgb() const;
-	bool is_initialized() const;
+	static const int get_target_count();
+	static bool is_target_srgb();
+	static bool is_initialized();
 
-	uint32_t get_video_handle() const { return video_out_handle; }
+	static uint32_t get_video_handle() { return video_out_handle; }
 
 	// game theory
-	liborbisutil::thread submit_thread;
-	liborbisutil::thread render_thread;
+	inline static liborbisutil::thread submit_thread;
+	inline static liborbisutil::thread render_thread;
 
 	// per frame context
-	uint32_t prev_frame_index;
-	uint32_t curr_frame_index;
+	inline static uint32_t prev_frame_index;
+	inline static uint32_t curr_frame_index;
 
-	frame_context* prev_frame_context;
-	frame_context* curr_frame_context;
+	inline static frame_context* prev_frame_context;
+	inline static frame_context* curr_frame_context;
 
-	sce::Gnmx::LightweightGfxContext* current_lw_context;
+	inline static sce::Gnmx::LightweightGfxContext* current_lw_context;
 
 	inline static liborbisutil::memory::direct_memory_allocator* garlic_memory_allocator;
 	inline static liborbisutil::memory::direct_memory_allocator* onion_memory_allocator;
 	inline static SceVideoOutBuffers* video_out_info;
 	inline static debug_context debug_ctx;
 
-	std::vector<sce::Gnm::RenderTarget> render_targets;
-	bool target_is_srgb;
+	inline static std::vector<sce::Gnm::RenderTarget> render_targets;
+	inline static bool target_is_srgb;
 private:
-	bool create_garlic_allocator(size_t size);
-	bool create_onion_allocator(size_t size);
-	bool create_device();
-	bool create_render_targets();
-	bool create_event_queue();
-	bool create_contexts();
+	static bool create_garlic_allocator(size_t size);
+	static bool create_onion_allocator(size_t size);
+	static bool create_device();
+	static bool create_render_targets();
+	static bool create_event_queue();
+	static bool create_contexts();
 
-	void clear_submits();
+	static void clear_submits();
 
-	void release_hooks();
-	void release_garlic_allocator();
-	void release_onion_allocator();
-	void release_device();
-	void release_render_targets();
-	void release_event_queue();
-	void release_contexts();
+	static void release_hooks();
+	static void release_garlic_allocator();
+	static void release_onion_allocator();
+	static void release_device();
+	static void release_render_targets();
+	static void release_event_queue();
+	static void release_contexts();
 
-	void dump();
+	static void dump();
 
 	// per instance context
-	sce::Gnmx::LightweightGfxContext* context;
-	frame_context* frame_contexts[3];
-	eqevent eop_event_queue;
-	int target_count;
+	inline static sce::Gnmx::LightweightGfxContext* context;
+	inline static frame_context* frame_contexts[3];
+	inline static eqevent eop_event_queue;
+	inline static int target_count;
 
 	// user callback (supplied to the renderer, used in hooks)
-	std::function<void(int)> user_callback;
+	inline static std::function<void(int)> user_callback;
 
-	uint32_t flags;
+	inline static uint32_t flags;
 
 	// release objects (used when releasing)
-	volatile uint64_t* release_label;
-	const uint64_t release_value = 1; // (label_free)
+	inline static volatile uint64_t* release_label;
+	inline static const uint64_t release_value = 1; // (label_free)
 
-	uint32_t video_out_handle;
-	uint64_t video_out_module_base;
+	inline static uint32_t video_out_handle;
+	inline static uint64_t video_out_module_base;
 
-	std::vector<texture> textures;
+	inline static std::vector<texture> textures;
 
-	inline static bool dump_dcb = false;
+	inline static bool dump_dcb;
 
 	// detours...
 	inline static liborbisutil::hook::manager detour_manager;
 
 	// hooks...
-	liborbisutil::hook::detour sceGnmSubmitAndFlipCommandBuffer_d;
-	liborbisutil::hook::detour sceGnmSubmitAndFlipCommandBufferForWorkload_d;
-	liborbisutil::hook::detour sceVideoOutSubmitFlip_d;
+	inline static liborbisutil::hook::detour sceGnmSubmitAndFlipCommandBuffer_d;
+	inline static liborbisutil::hook::detour sceGnmSubmitAndFlipCommandBufferForWorkload_d;
+	inline static liborbisutil::hook::detour sceVideoOutSubmitFlip_d;
 
 	static int sceGnmSubmitAndFlipCommandBuffers_h(uint32_t count, void* dcbGpuAddrs[], uint32_t* dcbSizesInBytes, void* ccbGpuAddrs[], uint32_t* ccbSizesInBytes, uint32_t videoOutHandle, uint32_t displayBufferIndex, uint32_t flipMode, int64_t flipArg);
 	static int sceGnmSubmitAndFlipCommandBuffersForWorkload_h(int workloadId, uint32_t count, void* dcbGpuAddrs[], uint32_t* dcbSizesInBytes, void* ccbGpuAddrs[], uint32_t* ccbSizesInBytes, uint32_t videoOutHandle, uint32_t displayBufferIndex, uint32_t flipMode, int64_t flipArg);
 	static int sceVideoOutSubmitFlip_h(uint32_t videoOutHandle, uint32_t displayBufferIndex, uint32_t flipMode, int64_t flipArg);
-
-	inline static render_context* instance_obj;
 };
