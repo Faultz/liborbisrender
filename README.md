@@ -30,42 +30,42 @@ A rendering library for PlayStation 4 (Orbis) that provides an easy-to-use graph
 
 ```cpp
 #include <liborbisrender.h>
+#include <liborbisutil.h>
 
 int module_start(size_t argc, const void* args)
 {
-    // Initialize minhook
-    MH_Initialize();
+	// Initialize minhook
+	MH_Initialize();
 
-    // Get render context instance
-    auto& context = *render_context::get_instance();
+	// Get render context instance
 
-    // Create the render context with desired flags
-    context.create(HookFlip | FunctionImGui | FunctionRenderDebug, [&](int flipIndex) {
+	// Create the render context with desired flags
+	render_context::create(HookFlip | FunctionImGui | FunctionRenderDebug, [&](int flipIndex) {
 
-        if (context.begin_scene(flipIndex))
-        {
-            context.update_scene();
+		if (render_context::begin_frame(flipIndex))
+		{
+			render_context::update_frame();
 
-            // Your ImGui rendering here
-            ImGui::Begin("My Window");
-            ImGui::Text("Hello, PS4!");
-            ImGui::End();
+			// Your ImGui rendering here
+			ImGui::Begin("My Window");
+			ImGui::Text("Hello, PS4!");
+			ImGui::End();
 
-            context.end_scene();
-        }
-    });
+			render_context::end_frame();
+		}
+		});
 
-    return SCE_OK;
+	return SCE_OK;
 }
 
 int module_stop(size_t argc, const void* args)
 {
-    auto& context = *render_context::get_instance();
-    context.release();
-    MH_Uninitialize();
+	render_context::release();
+	MH_Uninitialize();
 
-    return SCE_OK;
+	return SCE_OK;
 }
+
 ```
 
 ### Render Flags
