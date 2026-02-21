@@ -9,10 +9,11 @@
 #include <shader_liveediting.h>
 
 #include <liborbisutil.h>
-#include "gui/backend/imgui_impl_orbis.h"
-#include "gui/backend/imgui_impl_gnm.h"
 
-#include "texture.h"
+#include "imgui/backend/imgui_impl_orbis.h"
+#include "imgui/backend/imgui_impl_gnm.h"
+
+#include "utils/texture.h"
 
 struct SceVideoOutBuffer
 {
