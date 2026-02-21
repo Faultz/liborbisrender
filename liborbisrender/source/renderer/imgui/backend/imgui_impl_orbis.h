@@ -4,15 +4,15 @@
 #include <gnmx.h>
 #include <pad.h>
 
-#include "source/renderer/imgui/imgui.h"
-#include "source/renderer/imgui/imgui_internal.h"
+#include "../imgui.h"
+#include "../imgui_internal.h"
 
-#include "source/renderer/imgui/shaders/imgui_srt_common.h"
+#include "../shaders/imgui_srt_common.h"
 
-#include "source/renderer/utils/shaders.h"
-#include "source/renderer/utils/texture.h"
+#include "../../utils/shaders.h"
+#include "../../utils/texture.h"
 
-#include "source/renderer/render_context.h"
+#include "../../render_context.h"
 
 class render_context;
 
