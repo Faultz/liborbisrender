@@ -152,7 +152,7 @@ void        ImGui_ImplGnm_RenderDrawData(ImDrawData* draw_data, sce::Gnmx::Light
 		userData.m_frameData->m_vertex = buf;
 
 		userData.m_frameData->m_hdr = false;
-		userData.m_frameData->srgb = bd->renderContext->target_is_srgb;
+		userData.m_frameData->srgb = bd->renderContext->is_target_srgb();
 	}
 
 	dcb->pushMarker("ImGui Render");
@@ -293,7 +293,7 @@ bool        ImGui_ImplGnm_CreateDeviceObjects()
 	ImGui_ImplOrbis_Data* bd = ImGui_ImplOrbis_GetBackendData();
 	IM_ASSERT(bd != NULL && "Did you call ImGui_ImplOrbis_Init()?");
 
-	auto& m_garlic = *bd->renderContext->garlic_memory_allocator;
+	auto& m_garlic = *bd->renderContext->get_garlic_allocator();
 
 	extern char _binary_imgui_p_sb_start[], _binary_imgui_vv_sb_start[];
 	extern char _binary_imgui_p_sb_size[], _binary_imgui_vv_sb_size[];

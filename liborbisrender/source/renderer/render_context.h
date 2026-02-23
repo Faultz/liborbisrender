@@ -110,28 +110,31 @@ public:
 	static bool is_target_srgb();
 	static bool is_initialized();
 
+	static void set_user_callback(std::function<void(int)> callback) { user_callback = callback; }
+
 	static uint32_t get_video_handle() { return video_out_handle; }
+	static uint64_t get_video_module_base() { return video_out_module_base; }
+	static SceVideoOutBuffers* get_video_out_info() { return video_out_info; }
+	static debug_context& get_debug_context() { return debug_ctx; }
 
-	// game theory
-	inline static liborbisutil::thread submit_thread;
-	inline static liborbisutil::thread render_thread;
+	static liborbisutil::memory::direct_memory_allocator* get_garlic_allocator() { return garlic_memory_allocator; }
+	static liborbisutil::memory::direct_memory_allocator* get_onion_allocator() { return onion_memory_allocator; }
 
-	// per frame context
-	inline static uint32_t prev_frame_index;
-	inline static uint32_t curr_frame_index;
+	static std::vector<texture>& get_textures() { return textures; }
+	static std::vector<sce::Gnm::RenderTarget>& get_render_targets() { return render_targets; }
+	static sce::Gnmx::LightweightGfxContext* get_current_context() { return current_lw_context; }
 
-	inline static frame_context* prev_frame_context;
-	inline static frame_context* curr_frame_context;
+	static frame_context* get_current_frame_context() { return curr_frame_context; }
+	static frame_context* get_previous_frame_context() { return prev_frame_context; }
+	static uint32_t get_current_frame_index() { return curr_frame_index; }
+	static uint32_t get_previous_frame_index() { return prev_frame_index; }
 
-	inline static sce::Gnmx::LightweightGfxContext* current_lw_context;
+	static uint32_t get_flags() { return flags; }
+	static void set_flags(uint32_t new_flags) { flags = new_flags; }
+	static void add_flags(uint32_t new_flags) { flags |= new_flags; }
 
-	inline static liborbisutil::memory::direct_memory_allocator* garlic_memory_allocator;
-	inline static liborbisutil::memory::direct_memory_allocator* onion_memory_allocator;
-	inline static SceVideoOutBuffers* video_out_info;
-	inline static debug_context debug_ctx;
-
-	inline static std::vector<sce::Gnm::RenderTarget> render_targets;
-	inline static bool target_is_srgb;
+	static void dump_render_targets();
+	static void dump_textures();
 private:
 	static bool create_garlic_allocator(size_t size);
 	static bool create_onion_allocator(size_t size);
@@ -151,6 +154,23 @@ private:
 	static void release_contexts();
 
 	static void dump();
+
+	// per frame context
+	inline static uint32_t prev_frame_index;
+	inline static uint32_t curr_frame_index;
+
+	inline static frame_context* prev_frame_context;
+	inline static frame_context* curr_frame_context;
+
+	inline static sce::Gnmx::LightweightGfxContext* current_lw_context;
+
+	inline static liborbisutil::memory::direct_memory_allocator* garlic_memory_allocator;
+	inline static liborbisutil::memory::direct_memory_allocator* onion_memory_allocator;
+	inline static SceVideoOutBuffers* video_out_info;
+	inline static debug_context debug_ctx;
+
+	inline static std::vector<sce::Gnm::RenderTarget> render_targets;
+	inline static bool target_is_srgb;
 
 	// per instance context
 	inline static sce::Gnmx::LightweightGfxContext* context;

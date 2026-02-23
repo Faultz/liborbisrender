@@ -10,11 +10,17 @@ const constexpr liborbisutil::memory::pattern<9> video_out_handle_sig{
 
 void* allocMem(size_t size, void* userData)
 {
-	return render_context::onion_memory_allocator->allocate(size, 8, "");
+	auto onion_allocator = render_context::get_onion_allocator();
+	if(onion_allocator)
+		return render_context::get_onion_allocator()->allocate(size, 8, "");
+
+	return nullptr;
 }
 void freeMem(void* ptr, void* userData)
 {
-	render_context::onion_memory_allocator->free(ptr);
+	auto onion_allocator = render_context::get_onion_allocator();
+	if (onion_allocator)
+		render_context::get_onion_allocator()->free(ptr);
 }
 
 eqevent::~eqevent()
@@ -228,8 +234,6 @@ void render_context::release()
 
 	flags |= StateDestroying;
 
-	render_thread.join();
-
 	release_hooks();
 	clear_submits();
 
@@ -419,6 +423,19 @@ bool render_context::is_target_srgb()
 bool render_context::is_initialized()
 {
 	return flags & StateRunning;
+}
+
+void render_context::dump_render_targets()
+{
+	for (int i = 0; i < render_targets.size(); i++)
+	{
+		auto& target = render_targets[i];
+		LOG_INFO("Render Target %d:\n", i);
+		LOG_INFO("  Width: %d\n", target.getWidth());
+		LOG_INFO("  Height: %d\n", target.getHeight());
+		LOG_INFO("  Format: %d\n", target.getDataFormat());
+		LOG_INFO("  Tile Mode: %d\n", target.getTileMode());
+	}
 }
 
 bool render_context::create_garlic_allocator(size_t size)
