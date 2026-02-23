@@ -183,7 +183,7 @@ void        ImGui_ImplGnm_RenderDrawData(ImDrawData* draw_data, sce::Gnmx::Light
 				dcb->setScreenScissor((uint32_t)(pcmd->ClipRect.x - pos.x), (uint32_t)(pcmd->ClipRect.y - pos.y), (uint32_t)(pcmd->ClipRect.z - pos.x), (uint32_t)(pcmd->ClipRect.w - pos.y));
 			
 				userData.m_drawData = (Frame::PerDrawData*)dcb->allocateFromCommandBuffer(sizeof(Frame::PerDrawData), sce::Gnm::kEmbeddedDataAlignment16);
-				userData.m_drawData->m_texture = *((sce::Gnm::Texture*)pcmd->TextureId);
+				userData.m_drawData->m_texture = *((sce::Gnm::Texture*)pcmd->TexRef._TexID);
 				userData.m_drawData->m_vtxOffset = vtx_offset;
 
 				// bind SRT
