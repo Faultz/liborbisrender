@@ -333,7 +333,7 @@ bool texture::decode_gnf(const std::string& file)
 	} header{};
 	int index = 0;
 
-	liborbisutil::file_system fs(file, "rb");
+	liborbisutil::file fs(file, "rb");
 	if (!fs.is_open())
 	{
 		LOG_ERROR("Failed to open file %s\n", file.c_str());

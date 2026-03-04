@@ -56,7 +56,7 @@ void shader_program::load_vertex_shader(void* shaderBinary, size_t shaderBinaryS
 
 void shader_program::load_vertex_shader(const std::string filename, liborbisutil::memory::direct_memory_allocator* allocator)
 {
-	liborbisutil::file_system fs(filename, "rb");
+	liborbisutil::file fs(filename, "rb");
 	if (!fs.is_open())
 	{
 		LOG_ERROR("Failed to open vertex shader file: %s\n", filename.c_str());
@@ -105,7 +105,7 @@ void shader_program::load_pixel_shader(void* shaderBinary, size_t shaderBinarySi
 
 void shader_program::load_pixel_shader(const std::string filename, liborbisutil::memory::direct_memory_allocator* allocator)
 {
-	liborbisutil::file_system fs(filename, "rb");
+	liborbisutil::file fs(filename, "rb");
 	if (!fs.is_open())
 	{
 		LOG_ERROR("Failed to open pixel shader file: %s\n", filename.c_str());

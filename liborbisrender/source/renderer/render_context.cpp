@@ -267,6 +267,8 @@ bool render_context::begin_frame(int flip_index)
 		return false;
 
 
+	dcb_frame_ready = false;
+
 	prev_frame_index = curr_frame_index;
 	curr_frame_index = flip_index;
 	curr_frame_context = frame_contexts[curr_frame_index];
@@ -275,13 +277,11 @@ bool render_context::begin_frame(int flip_index)
 
 	*curr_frame_context->context_label = label_active;
 
-	current_lw_context->pushMarker("Frame Start");
-
-	current_lw_context->waitUntilSafeForRendering(video_out_handle, prev_frame_index);
-
 	current_lw_context->reset();
 	current_lw_context->initializeDefaultHardwareState();
 	current_lw_context->initializeToDefaultContextState();
+
+	current_lw_context->pushMarker("Frame Start");
 
 	current_lw_context->setRenderTarget(0, curr_frame_context->target);
 	current_lw_context->setRenderTargetMask(0xF);
@@ -368,21 +368,35 @@ void render_context::end_frame()
 		ImGui_ImplGnm_RenderDrawData(ImGui::GetDrawData(), current_lw_context);
 	}
 
-	if (flags & SubmitSelf)
+	if (flags & InjectDCB)
+	{
+		// Write the label so stall() can detect completion
+		current_lw_context->writeAtEndOfPipeWithInterrupt(sce::Gnm::kEopFlushCbDbCaches, sce::Gnm::kEventWriteDestMemory, (void*)curr_frame_context->context_label, sce::Gnm::kEventWriteSource64BitsImmediate,
+			label_free, sce::Gnm::kCacheActionNone, sce::Gnm::kCachePolicyLru);
+
+		// prepareFlip packet must be last in the DCB — the driver scans for it
+		current_lw_context->prepareFlipWithEopInterrupt(sce::Gnm::kEopFlushCbDbCaches, sce::Gnm::kCacheActionNone);
+
+		// Signal that this frame's DCB is fully recorded and safe to inject
+		dcb_frame_ready = true;
+
+		// No submit — the hook will inject this DCB into the game's batch
+	}
+	else if (flags & SubmitSelf)
 	{
 		current_lw_context->writeAtEndOfPipe(sce::Gnm::kEopFlushCbDbCaches, sce::Gnm::kEventWriteDestMemory, (void*)curr_frame_context->context_label, sce::Gnm::kEventWriteSource64BitsImmediate,
 			label_free, sce::Gnm::kCacheActionNone, sce::Gnm::kCachePolicyBypass);
+
+		current_lw_context->submit();
+		sce::Gnm::submitDone();
 	}
 	else
 	{
 		current_lw_context->writeAtEndOfPipeWithInterrupt(sce::Gnm::kEopFlushCbDbCaches, sce::Gnm::kEventWriteDestMemory, (void*)curr_frame_context->context_label, sce::Gnm::kEventWriteSource64BitsImmediate,
 			label_free, sce::Gnm::kCacheActionNone, sce::Gnm::kCachePolicyLru);
+
+		current_lw_context->submit();
 	}
-
-	current_lw_context->submit();
-
-	if (flags & SubmitSelf)
-		sce::Gnm::submitDone();
 }
 
 void render_context::stall()

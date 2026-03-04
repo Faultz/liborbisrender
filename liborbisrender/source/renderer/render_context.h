@@ -55,7 +55,9 @@ enum render_flags
 
 	FlipModeVSync = 1 << 9,
 
-	UnlockFps = 1 << 10
+	UnlockFps = 1 << 10,
+
+	InjectDCB = 1 << 11  // Inject overlay DCB into game's submit batch to eliminate scan-out race
 };
 
 struct frame_context
@@ -172,6 +174,7 @@ private:
 	inline static std::vector<texture> textures;
 
 	inline static bool dump_dcb;
+	inline static bool dcb_frame_ready = false;
 
 	// detours...
 	inline static liborbisutil::hook::manager detour_manager;
