@@ -58,7 +58,7 @@
     <Link>
       <Addressing>NonAslr</Addressing>
       <AdditionalDependencies>-lorbisrender;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutputPath);..\dependencies\StubMaker;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutputPath);..\dependencies\StubMaker\Build;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EditAndContinue>true</EditAndContinue>
     </Link>
     <PostBuildEvent>

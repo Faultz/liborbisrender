@@ -7,9 +7,12 @@
 #include "../imgui.h"
 #include "../imgui_internal.h"
 
-#include "../Shaders/imgui_srt_common.h"
-#include "../../shaders.h"
-#include "../../texture.h"
+#include "../shaders/imgui_srt_common.h"
+
+#include "../../utils/shaders.h"
+#include "../../utils/texture.h"
+
+#include "../../render_context.h"
 
 class render_context;
 

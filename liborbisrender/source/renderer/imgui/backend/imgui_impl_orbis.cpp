@@ -1,6 +1,5 @@
 
 #include "imgui_impl_orbis.h"
-#include "../../render_context.h"
 
 #include <ime_dialog.h>
 
@@ -35,10 +34,10 @@ bool ImGui_ImplOrbis_Init()
     //}
 
     bd->renderContext = nullptr;
-	bd->garlic_allocator = render_context::garlic_memory_allocator;
-	bd->onion_allocator = render_context::onion_memory_allocator;
+	bd->garlic_allocator = render_context::get_garlic_allocator();
+	bd->onion_allocator = render_context::get_onion_allocator();
 
-    video = render_context::video_out_info;
+    video = render_context::get_video_out_info();
 
     bd->WantUpdateHasGamepad = true;
     bd->HasMouseControl = false;

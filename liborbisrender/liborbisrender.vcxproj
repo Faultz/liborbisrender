@@ -73,48 +73,48 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="source\renderer\gui\backend\imgui_impl_gnm.cpp" />
-    <ClCompile Include="source\renderer\gui\backend\imgui_impl_orbis.cpp" />
-    <ClCompile Include="source\renderer\gui\imgui.cpp" />
-    <ClCompile Include="source\renderer\gui\imgui_demo.cpp" />
-    <ClCompile Include="source\renderer\gui\imgui_draw.cpp" />
-    <ClCompile Include="source\renderer\gui\imgui_tables.cpp" />
-    <ClCompile Include="source\renderer\gui\imgui_widgets.cpp" />
+    <ClCompile Include="source\renderer\imgui\backend\imgui_impl_gnm.cpp" />
+    <ClCompile Include="source\renderer\imgui\backend\imgui_impl_orbis.cpp" />
+    <ClCompile Include="source\renderer\imgui\imgui.cpp" />
+    <ClCompile Include="source\renderer\imgui\imgui_demo.cpp" />
+    <ClCompile Include="source\renderer\imgui\imgui_draw.cpp" />
+    <ClCompile Include="source\renderer\imgui\imgui_tables.cpp" />
+    <ClCompile Include="source\renderer\imgui\imgui_widgets.cpp" />
     <ClCompile Include="source\renderer\hooks\sce_gnm.cpp" />
     <ClCompile Include="source\renderer\hooks\sce_kernel.cpp" />
     <ClCompile Include="source\renderer\hooks\sce_video.cpp" />
     <ClCompile Include="source\renderer\render_context.cpp" />
-    <ClCompile Include="source\renderer\shaders.cpp" />
-    <ClCompile Include="source\renderer\texture.cpp" />
+    <ClCompile Include="source\renderer\utils\shaders.cpp" />
+    <ClCompile Include="source\renderer\utils\texture.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="source\renderer\gui\backend\imgui_impl_gnm.h" />
-    <ClInclude Include="source\renderer\gui\backend\imgui_impl_orbis.h" />
-    <ClInclude Include="source\renderer\gui\imconfig.h" />
-    <ClInclude Include="source\renderer\gui\imgui.h" />
-    <ClInclude Include="source\renderer\gui\imgui_internal.h" />
-    <ClInclude Include="source\renderer\gui\imstb_rectpack.h" />
-    <ClInclude Include="source\renderer\gui\imstb_textedit.h" />
-    <ClInclude Include="source\renderer\gui\imstb_truetype.h" />
-    <ClInclude Include="source\renderer\gui\shaders\graphics\matrix4unaligned.h" />
-    <ClInclude Include="source\renderer\gui\shaders\graphics\matrix4x3unaligned.h" />
-    <ClInclude Include="source\renderer\gui\shaders\graphics\shader_common.h" />
-    <ClInclude Include="source\renderer\gui\shaders\graphics\vector2unaligned.h" />
-    <ClInclude Include="source\renderer\gui\shaders\graphics\vector3unaligned.h" />
-    <ClInclude Include="source\renderer\gui\shaders\graphics\vector4unaligned.h" />
-    <ClInclude Include="source\renderer\gui\shaders\imgui_srt_common.h" />
-    <ClInclude Include="source\renderer\gui\stb_image.h" />
+    <ClInclude Include="source\renderer\imgui\backend\imgui_impl_gnm.h" />
+    <ClInclude Include="source\renderer\imgui\backend\imgui_impl_orbis.h" />
+    <ClInclude Include="source\renderer\imgui\imconfig.h" />
+    <ClInclude Include="source\renderer\imgui\imgui.h" />
+    <ClInclude Include="source\renderer\imgui\imgui_internal.h" />
+    <ClInclude Include="source\renderer\imgui\imstb_rectpack.h" />
+    <ClInclude Include="source\renderer\imgui\imstb_textedit.h" />
+    <ClInclude Include="source\renderer\imgui\imstb_truetype.h" />
+    <ClInclude Include="source\renderer\imgui\shaders\graphics\matrix4unaligned.h" />
+    <ClInclude Include="source\renderer\imgui\shaders\graphics\matrix4x3unaligned.h" />
+    <ClInclude Include="source\renderer\imgui\shaders\graphics\shader_common.h" />
+    <ClInclude Include="source\renderer\imgui\shaders\graphics\vector2unaligned.h" />
+    <ClInclude Include="source\renderer\imgui\shaders\graphics\vector3unaligned.h" />
+    <ClInclude Include="source\renderer\imgui\shaders\graphics\vector4unaligned.h" />
+    <ClInclude Include="source\renderer\imgui\shaders\imgui_srt_common.h" />
+    <ClInclude Include="source\renderer\imgui\stb_image.h" />
     <ClInclude Include="source\renderer\render_context.h" />
-    <ClInclude Include="source\renderer\shaders.h" />
-    <ClInclude Include="source\renderer\texture.h" />
+    <ClInclude Include="source\renderer\utils\shaders.h" />
+    <ClInclude Include="source\renderer\utils\texture.h" />
   </ItemGroup>
   <ItemGroup>
-    <WavePsslc Include="source\renderer\gui\shaders\imgui_p.pssl">
+    <WavePsslc Include="source\renderer\imgui\shaders\imgui_p.pssl">
       <Embed Condition="'$(Configuration)|$(Platform)'=='Debug|ORBIS'">true</Embed>
       <SdbCache Condition="'$(Configuration)|$(Platform)'=='Debug|ORBIS'">CacheAst</SdbCache>
       <Embed Condition="'$(Configuration)|$(Platform)'=='Release|ORBIS'">true</Embed>
     </WavePsslc>
-    <WavePsslc Include="source\renderer\gui\shaders\imgui_vv.pssl">
+    <WavePsslc Include="source\renderer\imgui\shaders\imgui_vv.pssl">
       <Embed Condition="'$(Configuration)|$(Platform)'=='Debug|ORBIS'">true</Embed>
       <SdbCache Condition="'$(Configuration)|$(Platform)'=='Debug|ORBIS'">CacheAst</SdbCache>
       <Embed Condition="'$(Configuration)|$(Platform)'=='Release|ORBIS'">true</Embed>

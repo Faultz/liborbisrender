@@ -123,7 +123,7 @@
 // (use 'Metrics->Tools->Item Picker' to pick widgets with the mouse and break into them for easy debugging.)
 //#define IM_DEBUG_BREAK  IM_ASSERT(0)
 #define IM_DEBUG_BREAK  __debugbreak
-
+#define IMGUI_DISABLE_DEFAULT_SHELL_FUNCTIONS
 //---- Debug Tools: Enable slower asserts
 //#define IMGUI_DEBUG_PARANOID
 

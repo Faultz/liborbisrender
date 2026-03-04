@@ -66,7 +66,15 @@ const uint32_t MAX_SHADER_PARAMS = 128;
 template<class T>
 struct shader
 {
-	shader() = default;
+	shader()
+	{
+		m_shader = nullptr;
+		binary = nullptr;
+		constant_buffer_mask = 0;
+		srv_mask.clear();
+		srt_buffer_mask = 0;
+		resource_handle = 0;
+	}
 	~shader() = default;
 
 	operator T* () 

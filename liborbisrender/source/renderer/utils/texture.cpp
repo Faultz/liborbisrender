@@ -3,9 +3,6 @@
 #include <regex>
 #include <libsysmodule.h>
 
-#pragma comment(lib, "libScePngDec_stub_weak.a")
-#pragma comment(lib, "libSceJpegDec_stub_weak.a")
-
 texture::texture(const std::string& file, bool should_use_cache)
 {
 	std::string texture_name = fmt::format("texture_{}_{}", file, texture_count);

@@ -31,32 +31,30 @@ extern "C"
 			liborbisutil::http::initialize();
 			liborbisutil::patcher::create("mutex on list patch", "libkernel.sprx", 0x7850, { 0xC3 }, true);
 
-		render_context::create(HookFlip | FunctionImGui | FunctionRenderDebug | UnlockFps, [](int flipIndex) {
+			render_context::create(HookFlip | FunctionImGui | FunctionRenderDebug | UnlockFps, [](int flipIndex) {
 
-			if(render_context::begin_frame(flipIndex))
-			{
-				render_context::update_frame();
-
-				// do render...
-				ImGui::Begin("Hello, world!");
-				ImGui::Text("This is some useful text.");
-
-				static texture tex("https://cataas.com/cat");
-				if (tex)
+				if (render_context::begin_frame(flipIndex))
 				{
-					ImGui::Image(&tex, { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y });
-				}
+					render_context::update_frame();
 
-				ImGui::End();
+					// do render...
+					ImGui::Begin("Hello, world!");
+					ImGui::Text("This is some useful text.");
 
-				render_context::end_frame();
-
-					for (auto file : liborbisutil::directory_iterator("/data/ImGui Fonts"))
+					static texture tex("https://cataas.com/cat");
+					if (tex)
 					{
-						io.Fonts->AddFontFromFileTTF(file.data(), 16.0f);
+						ImGui::Image(&tex, { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y });
 					}
 
-					});
+					ImGui::End();
+
+					render_context::end_frame();
+
+				}
+				}, [](ImGuiIO& io) {
+					io.Fonts->AddFontDefault();
+				});
 
 			liborbisutil::pad::initialize(liborbisutil::pad::state::read_state, true, [](ScePadData* pad, int num) {
 

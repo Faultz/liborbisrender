@@ -11,6 +11,7 @@ shader_program::shader_program(const std::string& name, void* vertexShaderBinary
 shader_program::shader_program(const std::string& name, const std::string vertexShaderFile, const std::string pixelShaderFile, liborbisutil::memory::direct_memory_allocator* allocator)
 {
 	this->name = name;
+
 	load_vertex_shader(vertexShaderFile, allocator);
 	load_pixel_shader(pixelShaderFile, allocator);
 }
