@@ -12,7 +12,7 @@ texture::texture(const std::string& file, bool should_use_cache)
 		LOG_ERROR("Failed to create texture from file: %s\n", file.data());
 	}
 
-	sce::Gnm::registerResource(&resource_handle, texture::allocator->owner_handle, getBaseAddress(), getSizeAlign().m_size, texture_name.data(), sce::Gnm::kResourceTypeTextureBaseAddress, 0);
+	register_resource(texture_name);
 
 	texture_count++;
 }
@@ -26,7 +26,7 @@ texture::texture(const void* data, int width, int height, sce::Gnm::DataFormat f
 		LOG_ERROR("Failed to create texture from data(%lX) with %dx%d: %s\n", data, width, height, texture_name.data());
 	}
 
-	sce::Gnm::registerResource(&resource_handle, texture::allocator->owner_handle, getBaseAddress(), getSizeAlign().m_size, texture_name.data(), sce::Gnm::kResourceTypeTextureBaseAddress, 0);
+	register_resource(texture_name);
 
 	texture_count++;
 }
@@ -41,6 +41,11 @@ texture::~texture()
 
 void texture::register_resource(std::string name)
 {
+	if(!sce::Gnm::isUserPaEnabled())
+	{
+		return;
+	}
+
 	sce::Gnm::registerResource(&resource_handle, texture::allocator->owner_handle, getBaseAddress(), getSizeAlign().m_size, name.data(), sce::Gnm::kResourceTypeTextureBaseAddress, 0);
 }
 

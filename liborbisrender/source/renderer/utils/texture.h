@@ -57,7 +57,7 @@ private:
 	std::string file_path;
 	bool should_use_cache = false;
 	void* pixels = nullptr;
-	sce::Gnm::ResourceHandle resource_handle;
+	sce::Gnm::ResourceHandle resource_handle = 0;
 
 	static inline int texture_count = 0;
 	static constexpr const char* texture_cache_path = "/data/liborbisrender/cache/textures";

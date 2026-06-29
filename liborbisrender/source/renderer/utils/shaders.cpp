@@ -48,8 +48,10 @@ void shader_program::load_vertex_shader(void* shaderBinary, size_t shaderBinaryS
 
 	static int shader_idx = 0;
 	std::string resource_name = liborbisutil::string::format("%s_VertexShader_ResourceHandle_%d", name.c_str(), shader_idx++);
-	sce::Gnm::registerResource(&vertex_shader.resource_handle, allocator->owner_handle, vertex_shader.m_shader->getBaseAddress(), shaderInfo.m_gpuShaderCodeSize,
-		resource_name.data(), sce::Gnm::kResourceTypeShaderBaseAddress, 0);
+
+	if(sce::Gnm::isUserPaEnabled())
+		sce::Gnm::registerResource(&vertex_shader.resource_handle, allocator->owner_handle, vertex_shader.m_shader->getBaseAddress(), shaderInfo.m_gpuShaderCodeSize,
+			resource_name.data(), sce::Gnm::kResourceTypeShaderBaseAddress, 0);
 
 	load_fetch_shader(shaderBinary, allocator);
 	load_program(&vertex_shader, shaderBinary, shaderBinarySize, allocator);
@@ -98,8 +100,10 @@ void shader_program::load_pixel_shader(void* shaderBinary, size_t shaderBinarySi
 
 	static int shader_idx = 0;
 	std::string resource_name = liborbisutil::string::format("%s_PixelShader_ResourceHandle_%d", name.c_str(), shader_idx++);
-	sce::Gnm::registerResource(&pixel_shader.resource_handle, allocator->owner_handle, pixel_shader.m_shader->getBaseAddress(), shaderInfo.m_gpuShaderCodeSize,
-		resource_name.data(), sce::Gnm::kResourceTypeShaderBaseAddress, 0);
+
+	if (sce::Gnm::isUserPaEnabled())
+		sce::Gnm::registerResource(&pixel_shader.resource_handle, allocator->owner_handle, pixel_shader.m_shader->getBaseAddress(), shaderInfo.m_gpuShaderCodeSize,
+			resource_name.data(), sce::Gnm::kResourceTypeShaderBaseAddress, 0);
 
 	load_program(&pixel_shader, shaderBinary, shaderBinarySize, allocator);
 }
@@ -163,8 +167,10 @@ void shader_program::load_compute_shader(void* shaderBinary, size_t shaderBinary
 
 	static int shader_idx = 0;
 	std::string resource_name = liborbisutil::string::format("%s_ComputeShader_ResourceHandle_%d", name.c_str(), shader_idx++);
-	sce::Gnm::registerResource(&compute_shader.resource_handle, allocator->owner_handle, compute_shader.m_shader->getBaseAddress(), shaderInfo.m_gpuShaderCodeSize,
-		resource_name.data(), sce::Gnm::kResourceTypeShaderBaseAddress, 0);
+
+	if (sce::Gnm::isUserPaEnabled())
+		sce::Gnm::registerResource(&compute_shader.resource_handle, allocator->owner_handle, compute_shader.m_shader->getBaseAddress(), shaderInfo.m_gpuShaderCodeSize,
+			resource_name.data(), sce::Gnm::kResourceTypeShaderBaseAddress, 0);
 
 	load_program(&compute_shader, shaderBinary, shaderBinarySize, allocator);
 }
