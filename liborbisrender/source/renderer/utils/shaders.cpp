@@ -18,13 +18,16 @@ shader_program::shader_program(const std::string& name, const std::string vertex
 
 shader_program::~shader_program()
 {
-	if (vertex_shader.resource_handle)
+	if (sce::Gnm::isUserPaEnabled())
 	{
-		sce::Gnm::unregisterResource(vertex_shader.resource_handle);
-	}
-	if (pixel_shader.binary)
-	{
-		sce::Gnm::unregisterResource(pixel_shader.resource_handle);
+		if (vertex_shader.resource_handle)
+		{
+			sce::Gnm::unregisterResource(vertex_shader.resource_handle);
+		}
+		if (pixel_shader.binary)
+		{
+			sce::Gnm::unregisterResource(pixel_shader.resource_handle);
+		}
 	}
 }
 

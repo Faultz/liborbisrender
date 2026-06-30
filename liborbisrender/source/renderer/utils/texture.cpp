@@ -33,9 +33,12 @@ texture::texture(const void* data, int width, int height, sce::Gnm::DataFormat f
 
 texture::~texture()
 {
-	if (resource_handle) 
+	if (sce::Gnm::isUserPaEnabled())
 	{
-		sce::Gnm::unregisterResource(resource_handle);
+		if (resource_handle)
+		{
+			sce::Gnm::unregisterResource(resource_handle);
+		}
 	}
 }
 
