@@ -91,11 +91,6 @@ public:
 class render_context
 {
 public:
-	// Delete constructors to prevent instantiation
-	render_context() = delete;
-	render_context(const render_context&) = delete;
-	render_context& operator=(const render_context&) = delete;
-
 	static bool create(uint32_t flags, std::function<void(int)> user_callback = nullptr, std::function<void(ImGuiIO&)> load_fonts_cb = nullptr);
 	static void release();
 
